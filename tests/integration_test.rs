@@ -1,9 +1,7 @@
 use libdeflate_sys;
 
-use libc::{c_int};
-
-const MIN_COMP_LVL: c_int = 1;
-const MAX_COMP_LVL: c_int = 12;
+const MIN_COMP_LVL: i32 = 1;
+const MAX_COMP_LVL: i32 = 12;
 
 #[test]
 fn can_make_decompressor_at_each_compression_lvl() {
@@ -42,9 +40,9 @@ fn can_use_compressor_to_compress_trivially_compressable_data() {
         let mut out_data: [u8; 1<<16] = [0; 1<<16];
         let compressor = libdeflate_sys::libdeflate_alloc_compressor(MAX_COMP_LVL);
         let sz = libdeflate_sys::libdeflate_deflate_compress(compressor,
-                                                             in_data.as_ptr(),
+                                                             in_data.as_ptr() as *const core::ffi::c_void,
                                                              in_data.len(),
-                                                             out_data.as_mut_ptr(),
+                                                             out_data.as_mut_ptr() as *mut core::ffi::c_void,
                                                              out_data.len());
         assert_ne!(sz, 0);
         assert!(sz < 100);
