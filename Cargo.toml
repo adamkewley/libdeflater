@@ -3,6 +3,14 @@ name = "libdeflate-sys"
 version = "0.1.0"
 authors = ["Adam Kewley <contact@adamkewley.com>"]
 edition = "2018"
+links = "deflate"
+build = "build.rs"
+license = "Apache-2.0"
+repository = "https://github.com/adamkewley/libdeflate-sys"
+description = """
+Bindings to the system libdeflate library
+"""
+categories = ["external-ffi-bindings"]
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
