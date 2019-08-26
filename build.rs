@@ -17,6 +17,8 @@ fn main() {
         .file("libdeflate/lib/crc32.c")
         .file("libdeflate/lib/gzip_decompress.c")
         .file("libdeflate/lib/gzip_compress.c")
+        .include("libdeflate/")
+        .include("libdeflate/lib/")
         .include("libdeflate/common/")
         .warnings(false)
         .compile("libdeflate");
