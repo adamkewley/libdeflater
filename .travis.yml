@@ -1,4 +1,6 @@
 language: rust
+git:
+  submodules: true 
 addons:
   apt:
     packages:
