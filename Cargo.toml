@@ -1,11 +1,11 @@
 [package]
-name = "libdeflate-sys"
+name = "libdeflate"
 version = "0.1.0"
 authors = ["Adam Kewley <contact@adamkewley.com>"]
 edition = "2018"
 build = "build.rs"
 license = "Apache-2.0"
-repository = "https://github.com/adamkewley/libdeflate-sys"
+repository = "https://github.com/adamkewley/libdeflate"
 description = """
 Bindings to the system libdeflate library
 """
