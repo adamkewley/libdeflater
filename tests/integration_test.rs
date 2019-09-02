@@ -58,8 +58,12 @@ fn read_fixture_gz_with_bad_isize() -> Vec<u8> {
     data
 }
 
+fn read_fixture_zlib() -> Vec<u8> {
+    read_fixture("tests/hello.zz")
+}
+
 #[test]
-fn test_can_call_decompress_gz_with_valid_args() {
+fn test_calling_decompress_gz_with_valid_args_works() {
     let mut decompressor = Decompressor::new();
     let content = read_fixture_gz();
     let mut decompressed = Vec::new();
@@ -143,4 +147,14 @@ fn test_calling_decompress_gz_with_corrupted_isize_returns_bad_data() {
     let result = decompressor.decompress_gz(&content, &mut decompressed);
 
     assert_eq!(result.unwrap_err(), Error::BadData);
+}
+
+#[test]
+fn test_calling_decompress_zlib_with_valid_args_works() {
+    let mut decompressor = Decompressor::new();
+    let content = read_fixture_zlib();
+    let mut decompressed = Vec::new();
+    decompressed.resize(fixture_content_size(), 0);
+
+    decompressor.decompress_zlib(&content, &mut decompressed).unwrap();
 }

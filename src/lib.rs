@@ -36,16 +36,16 @@ pub mod inflate {
         }
 
         pub fn decompress_gz(&mut self,
-                             deflate_data: &[u8],
+                             gz_data: &[u8],
                              out: &mut [u8]) -> Result<usize> {
             unsafe {
                 let mut out_nbytes = 0;
-                let in_ptr = deflate_data.as_ptr() as *const std::ffi::c_void;
+                let in_ptr = gz_data.as_ptr() as *const std::ffi::c_void;
                 let out_ptr = out.as_mut_ptr() as *mut std::ffi::c_void;
                 let ret: libdeflate_result =
                     libdeflate_gzip_decompress(self.p,
                                                in_ptr,
-                                               deflate_data.len(),
+                                               gz_data.len(),
                                                out_ptr,
                                                out.len(),
                                                &mut out_nbytes);
@@ -65,6 +65,12 @@ pub mod inflate {
                 }
             }
         }
+
+        pub fn decompress_zlib(&mut self,
+                               zlib_data: &[u8],
+                               out: &mut [u8]) -> Result<usize> {
+            Ok(0)
+        }                               
     }
 
     impl Drop for Decompressor {
