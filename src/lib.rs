@@ -37,9 +37,9 @@ pub mod inflate {
             }
         }
 
-        pub fn decompress_gz(&mut self,
-                             gz_data: &[u8],
-                             out: &mut [u8]) -> Result<usize> {
+        pub fn decompress_gzip(&mut self,
+                               gz_data: &[u8],
+                               out: &mut [u8]) -> Result<usize> {
             unsafe {
                 let mut out_nbytes = 0;
                 let in_ptr = gz_data.as_ptr() as *const std::ffi::c_void;
@@ -150,6 +150,9 @@ pub mod deflate {
                                 libdeflate_deflate_compress_bound,
                                 libdeflate_deflate_compress,
                                 libdeflate_zlib_compress_bound,
+                                libdeflate_zlib_compress,
+                                libdeflate_gzip_compress_bound,
+                                libdeflate_gzip_compress,
                                 libdeflate_free_compressor};
 
     #[derive(Copy, Clone)]
@@ -268,11 +271,38 @@ pub mod deflate {
                 let in_ptr = in_raw_data.as_ptr() as *const std::ffi::c_void;
                 let out_ptr = out_zlib_data.as_mut_ptr() as *mut std::ffi::c_void;
 
-                let sz = libdeflate_deflate_compress(self.p,
-                                                     in_ptr,
-                                                     in_raw_data.len(),
-                                                     out_ptr,
-                                                     out_zlib_data.len());
+                let sz = libdeflate_zlib_compress(self.p,
+                                                  in_ptr,
+                                                  in_raw_data.len(),
+                                                  out_ptr,
+                                                  out_zlib_data.len());
+
+                if sz != 0 {
+                    Ok(sz)
+                } else {
+                    Err(Error::InsufficientSpace)
+                }
+            }
+        }
+
+        pub fn compress_gzip_bound(&mut self, n_bytes: usize) -> usize {
+            unsafe {
+                libdeflate_gzip_compress_bound(self.p, n_bytes)
+            }
+        }
+
+        pub fn compress_gzip(&mut self,
+                             in_raw_data: &[u8],
+                             out_gzip_data: &mut [u8]) -> Result<usize> {
+            unsafe {
+                let in_ptr = in_raw_data.as_ptr() as *const std::ffi::c_void;
+                let out_ptr = out_gzip_data.as_mut_ptr() as *mut std::ffi::c_void;
+
+                let sz = libdeflate_gzip_compress(self.p,
+                                                  in_ptr,
+                                                  in_raw_data.len(),
+                                                  out_ptr,
+                                                  out_gzip_data.len());
 
                 if sz != 0 {
                     Ok(sz)
