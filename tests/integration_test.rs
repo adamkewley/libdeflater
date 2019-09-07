@@ -62,6 +62,34 @@ fn read_fixture_zlib() -> Vec<u8> {
     read_fixture("tests/hello.zz")
 }
 
+fn read_fixture_zlib_with_bad_cmf_field() -> Vec<u8> {
+    const BAD_CM: u8 = 9;  // RFC1950: val == 8 for deflate
+    const BAD_CINFO: u8 = 8;  // RFC1950: vals > 7 disallowed
+    const BAD_CMF: u8 = ((BAD_CM << 4) & 0xf0) | (BAD_CINFO & 0x0f);
+    
+    let mut data = read_fixture_zlib();
+
+    data[0] = BAD_CMF;
+
+    data
+}
+
+fn read_fixture_zlib_with_bad_adler32_checksum() -> Vec<u8> {
+    let mut data = read_fixture_zlib();
+    let adler32_start = data.len() - 4;
+
+    data[adler32_start] = data[adler32_start] + 1;
+
+    data
+}
+
+fn read_fixture_deflate() -> Vec<u8> {
+    read_fixture("tests/hello.deflate")
+}
+
+
+// gz decompression
+
 #[test]
 fn test_calling_decompress_gz_with_valid_args_works() {
     let mut decompressor = Decompressor::new();
@@ -149,6 +177,9 @@ fn test_calling_decompress_gz_with_corrupted_isize_returns_bad_data() {
     assert_eq!(result.unwrap_err(), Error::BadData);
 }
 
+
+// zlib decompression
+
 #[test]
 fn test_calling_decompress_zlib_with_valid_args_works() {
     let mut decompressor = Decompressor::new();
@@ -157,4 +188,135 @@ fn test_calling_decompress_zlib_with_valid_args_works() {
     decompressed.resize(fixture_content_size(), 0);
 
     decompressor.decompress_zlib(&content, &mut decompressed).unwrap();
+}
+
+#[test]
+fn test_calling_decompress_zlib_with_undersized_outbuf_returns_insufficient_space() {
+    let result = {
+        let mut decompressor = Decompressor::new();
+        let content = read_fixture_zlib();
+        let mut decompressed = Vec::with_capacity(0);
+        
+        decompressor.decompress_zlib(&content, &mut decompressed)
+    };
+
+    assert_eq!(result.unwrap_err(), Error::InsufficientSpace);
+}
+
+#[test]
+fn test_calling_decompress_zlib_with_valid_buf_fills_buf_with_expected_content() {
+    let decompressed_content = {
+        let mut decompressor = Decompressor::new();
+        let content = read_fixture_zlib();
+        let mut decompressed = Vec::new();
+        decompressed.resize(fixture_content_size(), 0);
+        decompressor.decompress_zlib(&content, &mut decompressed).unwrap();
+        decompressed
+    };
+
+    let expected_content = read_fixture_content();
+
+    assert_eq!(decompressed_content, expected_content);
+}
+
+#[test]
+fn test_calling_decompress_zlib_with_oversized_buf_returns_correct_size() {
+    const OVERSIZED_FACTOR: usize = 2;
+    
+    let sz = {
+        let mut decompressor = Decompressor::new();
+        let content = read_fixture_zlib();
+        let mut decompressed = Vec::new();
+        decompressed.resize(OVERSIZED_FACTOR*fixture_content_size(), 0);
+        let sz = decompressor.decompress_zlib(&content, &mut decompressed).unwrap();
+        sz
+    };
+
+    assert_eq!(sz, fixture_content_size());
+}
+
+#[test]
+fn test_calling_decompress_zlib_with_bad_cmf_field_returns_bad_data() {
+    let ret = {
+        let mut decompressor = Decompressor::new();
+        let content = read_fixture_zlib_with_bad_cmf_field();
+        let mut decompressed = Vec::new();
+        decompressed.resize(fixture_content_size(), 0);
+
+        decompressor.decompress_zlib(&content, &mut decompressed)
+    };
+
+    assert_eq!(ret.unwrap_err(), Error::BadData);
+}
+
+#[test]
+fn test_calling_decompress_zlib_with_bad_adler32_checksum_returns_bad_data() {
+    let ret = {
+        let mut decompressor = Decompressor::new();
+        let content = read_fixture_zlib_with_bad_adler32_checksum();
+        let mut decompressed = Vec::new();
+        decompressed.resize(fixture_content_size(), 0);
+
+        decompressor.decompress_zlib(&content, &mut decompressed)
+    };
+
+    assert_eq!(ret.unwrap_err(), Error::BadData);
+}
+
+
+// DEFLATE decompression
+
+#[test]
+fn test_calling_decompress_deflate_with_valid_args_works() {
+    let mut decompressor = Decompressor::new();
+    let content = read_fixture_deflate();
+    let mut decompressed = Vec::new();
+    decompressed.resize(fixture_content_size(), 0);
+
+    decompressor.decompress_deflate(&content, &mut decompressed).unwrap();
+}
+
+#[test]
+fn test_calling_decompress_deflate_with_undersized_outbuf_returns_insufficient_space() {
+    let result = {
+        let mut decompressor = Decompressor::new();
+        let content = read_fixture_deflate();
+        let mut decompressed = Vec::with_capacity(0);
+        
+        decompressor.decompress_deflate(&content, &mut decompressed)
+    };
+
+    assert_eq!(result.unwrap_err(), Error::InsufficientSpace);
+}
+
+#[test]
+fn test_calling_decompress_deflate_with_valid_buf_fills_buf_with_expected_content() {
+    let decompressed_content = {
+        let mut decompressor = Decompressor::new();
+        let content = read_fixture_deflate();
+        let mut decompressed = Vec::new();
+        decompressed.resize(fixture_content_size(), 0);
+        decompressor.decompress_deflate(&content, &mut decompressed).unwrap();
+        decompressed
+    };
+
+    let expected_content = read_fixture_content();
+
+    assert_eq!(decompressed_content, expected_content);
+}
+
+#[test]
+fn test_calling_decompress_deflate_with_oversized_buf_returns_correct_size() {
+    const OVERSIZED_FACTOR: usize = 2;
+    
+    let sz = {
+        let mut decompressor = Decompressor::new();
+        let content = read_fixture_deflate();
+        let mut decompressed = Vec::new();
+        decompressed.resize(OVERSIZED_FACTOR*fixture_content_size(), 0);
+        let sz = decompressor.decompress_deflate(&content, &mut decompressed).unwrap();
+        sz
+    };
+
+    assert_eq!(sz, fixture_content_size());
 }

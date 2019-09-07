@@ -6,6 +6,8 @@ pub mod inflate {
                                 libdeflate_alloc_decompressor,
                                 libdeflate_free_decompressor,
                                 libdeflate_gzip_decompress,
+                                libdeflate_zlib_decompress,
+                                libdeflate_deflate_decompress,
                                 libdeflate_result,
                                 libdeflate_result_LIBDEFLATE_SUCCESS,
                                 libdeflate_result_LIBDEFLATE_BAD_DATA,
@@ -69,8 +71,66 @@ pub mod inflate {
         pub fn decompress_zlib(&mut self,
                                zlib_data: &[u8],
                                out: &mut [u8]) -> Result<usize> {
-            Ok(0)
-        }                               
+            unsafe {
+                let mut out_nbytes = 0;
+                let in_ptr = zlib_data.as_ptr() as *const std::ffi::c_void;
+                let out_ptr = out.as_mut_ptr() as *mut std::ffi::c_void;
+                let ret: libdeflate_result =
+                    libdeflate_zlib_decompress(self.p,
+                                               in_ptr,
+                                               zlib_data.len(),
+                                               out_ptr,
+                                               out.len(),
+                                               &mut out_nbytes);
+
+                match ret {
+                    libdeflate_result_LIBDEFLATE_SUCCESS => {
+                        Ok(out_nbytes)
+                    },
+                    libdeflate_result_LIBDEFLATE_BAD_DATA => {
+                        Err(Error::BadData)
+                    },
+                    libdeflate_result_LIBDEFLATE_INSUFFICIENT_SPACE => {
+                        Err(Error::InsufficientSpace)
+                    },
+                    _ => {
+                        panic!("libdeflate_zlib_decompress returned an unknown error type: this is an internal bug that **must** be fixed");
+                    }
+                }
+            }
+        }
+
+        pub fn decompress_deflate(&mut self,
+                                  deflate_data: &[u8],
+                                  out: &mut [u8]) -> Result<usize> {
+            unsafe {
+                let mut out_nbytes = 0;
+                let in_ptr = deflate_data.as_ptr() as *const std::ffi::c_void;
+                let out_ptr = out.as_mut_ptr() as *mut std::ffi::c_void;
+                let ret: libdeflate_result =
+                    libdeflate_deflate_decompress(self.p,
+                                                  in_ptr,
+                                                  deflate_data.len(),
+                                                  out_ptr,
+                                                  out.len(),
+                                                  &mut out_nbytes);
+
+                match ret {
+                    libdeflate_result_LIBDEFLATE_SUCCESS => {
+                        Ok(out_nbytes)
+                    },
+                    libdeflate_result_LIBDEFLATE_BAD_DATA => {
+                        Err(Error::BadData)
+                    },
+                    libdeflate_result_LIBDEFLATE_INSUFFICIENT_SPACE => {
+                        Err(Error::InsufficientSpace)
+                    },
+                    _ => {
+                        panic!("libdeflate_zlib_decompress returned an unknown error type: this is an internal bug that **must** be fixed");
+                    }
+                }
+            }
+        }
     }
 
     impl Drop for Decompressor {
