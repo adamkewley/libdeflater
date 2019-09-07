@@ -4,6 +4,11 @@ use std::fs::File;
 use std::io::Read;
 use std::vec::Vec;
 use libdeflate::inflate::{Decompressor, Error};
+use libdeflate::deflate::{Compressor, CompressionLvl, Error as DeflateError};
+
+
+
+// decompression
 
 #[test]
 fn test_can_create_new_decompressor() {
@@ -320,3 +325,186 @@ fn test_calling_decompress_deflate_with_oversized_buf_returns_correct_size() {
 
     assert_eq!(sz, fixture_content_size());
 }
+
+
+
+// compression
+
+#[test]
+fn test_compressor_with_fastest_compression_lvl_calls_with_no_panics() {
+    Compressor::with_fastest_compression_lvl();
+}
+
+#[test]
+fn test_compressor_with_default_compression_lvl_calls_with_no_panics() {
+    Compressor::with_default_compression_lvl();
+}
+
+#[test]
+fn test_compressor_with_slow_compression_lvl_calls_with_no_panics() {
+    Compressor::with_slow_compression_lvl();
+}
+
+#[test]
+fn test_compressor_with_slowest_compression_lvl_calls_with_no_panics() {
+    Compressor::with_slowest_compression_lvl();
+}
+
+#[test]
+fn test_compressor_with_compression_lvl_can_be_called_with_all_lvls_with_no_panics() {
+    for lvl in CompressionLvl::iterator() {
+        Compressor::with_compression_lvl(*lvl);
+    }
+}
+
+
+// compress DEFLATE
+
+#[test]
+fn test_compressor_compress_deflate_bound_returns_nonzero_when_given_nonzero_input() {
+    let returned_bound = {
+        let mut compressor = Compressor::with_default_compression_lvl();
+        compressor.compress_deflate_bound(1)
+    };
+
+    assert_ne!(returned_bound, 0);
+}
+
+#[test]
+fn test_compressor_compress_deflate_with_valid_args_does_not_panic() {
+    let mut compressor = Compressor::with_default_compression_lvl();
+    let in_data = read_fixture_content();
+    let mut out_data = Vec::new();
+    let out_max_sz = compressor.compress_deflate_bound(in_data.len()); 
+    out_data.resize(out_max_sz, 0);
+
+    compressor.compress_deflate(&in_data, &mut out_data).unwrap();
+}
+
+#[test]
+fn test_compressor_compress_deflate_with_undersized_buf_returns_insufficient_space() {
+    let ret = {
+        let mut compressor = Compressor::with_default_compression_lvl();
+        let in_data = read_fixture_content();
+        let mut out_data = Vec::new();
+        compressor.compress_deflate(&in_data, &mut out_data)
+    };
+
+    assert_eq!(ret.unwrap_err(), DeflateError::InsufficientSpace);
+}
+
+#[test]
+fn test_compressor_compress_deflate_with_correct_args_returns_a_nonzero_size() {    
+    let ret = {
+        let mut compressor = Compressor::with_default_compression_lvl();
+        let in_data = read_fixture_content();
+        let mut out_data = Vec::new();
+        let out_max_sz = compressor.compress_deflate_bound(in_data.len());
+        out_data.resize(out_max_sz, 0);
+        compressor.compress_deflate(&in_data, &mut out_data).unwrap()
+    };
+
+    assert_ne!(0, ret);
+}
+
+#[test]
+fn test_compressor_compress_deflate_with_correct_args_resized_outbuf_to_return_val_produces_nonempty_nonzero_data() {
+    // This is, give or take, essentially how users *should* use the
+    // lib for raw DEFLATE compressions
+    
+    let compressed_data = {
+        let mut compressor = Compressor::with_default_compression_lvl();
+        let in_data = read_fixture_content();
+        let mut out_data = Vec::new();
+        let out_max_sz = compressor.compress_deflate_bound(in_data.len());
+        out_data.resize(out_max_sz, 0);
+        let sz = compressor.compress_deflate(&in_data, &mut out_data).unwrap();
+        out_data.resize(sz, 0);
+        out_data
+    };
+
+    assert_ne!(compressed_data.len(), 0);
+    assert!(compressed_data.iter().any(|byte| *byte != 0x00));
+}
+
+
+// compress zlib
+
+#[test]
+fn test_compressor_compress_zlib_bound_returns_nonzero_when_given_nonzero_input() {
+    let returned_bound = {
+        let mut compressor = Compressor::with_default_compression_lvl();
+        compressor.compress_zlib_bound(1)
+    };
+
+    assert_ne!(returned_bound, 0);
+}
+
+#[test]
+fn test_compressor_compresss_zlib_with_valid_args_does_not_panic() {
+    let mut compressor = Compressor::with_default_compression_lvl();
+    let in_data = read_fixture_content();
+    let mut out_data = Vec::new();
+    let out_max_sz = compressor.compress_zlib_bound(in_data.len());
+    out_data.resize(out_max_sz, 0);
+
+    compressor.compress_zlib(&in_data, &mut out_data);
+}
+
+#[test]
+fn test_compressor_compress_zlib_with_undersized_outbuf_returns_insufficient_space() {
+    let ret = {
+        let mut compressor = Compressor::with_default_compression_lvl();
+        let in_data = read_fixture_content();
+        let mut out_data = Vec::new();
+        compressor.compress_zlib(&in_data, &mut out_data)
+    };
+
+    assert_eq!(ret.unwrap_err(), DeflateError::InsufficientSpace);
+}
+
+#[test]
+fn test_compressor_compress_zlib_with_correct_args_returns_nonzero_size() {
+    let ret = {
+        let mut compressor = Compressor::with_default_compression_lvl();
+        let in_data = read_fixture_content();
+        let mut out_data = Vec::new();
+        let out_max_sz = compressor.compress_zlib_bound(in_data.len());
+        out_data.resize(out_max_sz, 0);
+        
+        compressor.compress_zlib(&in_data, &mut out_data).unwrap()
+    };
+
+    assert_ne!(ret, 0);
+}
+
+#[test]
+fn test_compressor_compress_zlib_with_correct_args_resized_outbuf_to_return_val_produces_nonempty_nonzero_data() {
+    // This is, give or take, essentially how users *should* use the
+    // lib for zlib compressions
+    
+    let compressed_data = {
+        let mut compressor = Compressor::with_default_compression_lvl();
+        let in_data = read_fixture_content();
+        let mut out_data = Vec::new();
+        let out_max_sz = compressor.compress_zlib_bound(in_data.len());
+        out_data.resize(out_max_sz, 0);
+        let sz = compressor.compress_deflate(&in_data, &mut out_data).unwrap();
+        out_data.resize(sz, 0);
+        out_data
+    };
+
+    assert_ne!(compressed_data.len(), 0);
+    assert!(compressed_data.iter().any(|byte| *byte != 0x00));
+}
+
+
+// compress gzip
+
+
+
+
+// compress + decompress (full-cycle tests)
+
+
+// compress + decompress with other lib flate2 (cross-lib tests)
