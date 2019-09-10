@@ -15,18 +15,51 @@ performance-focused compression library that is typically used
           accordingly.
 
 ```rust
-use crate::rlibdeflate;
+use libdeflate;
 
-use libdeflate::Decompressor;
+use std::vec::Vec;
+use std::fs::File;
+use std::io::Read;
+use std::str;
+use libdeflate::inflate::Decompressor;
 
-fn decompress(deflate_data: &[u8], out_sz: usize) -> Vec<u8> {
-    let mut decompressor = Decompressor::new();
-    let mut ret = Vec::new();
-    ret.resize(out_sz, 0);
+fn main() {
+    let gz_data = {
+        let mut f = File::open("tests/hello.gz").unwrap();
+        let mut content = Vec::new();
+        f.read_to_end(&mut content).unwrap();
+        content
+    };
 
-    decompressor.decompress_deflate(&deflate_data, &mut ret).unwrap();
+    if gz_data.len() < 10 {
+        panic!("gz data is too short (for magic bytes + footer");
+    }
 
-    return ret;
+    // gzip RFC1952: a valid gzip file has an ISIZE field in the
+    // footer, which is a little-endian u32 number representing the
+    // decompressed size. This is ideal for libdeflate, which needs
+    // preallocating the decompressed buffer.
+    let isize = {
+        let isize_start = gz_data.len() - 4;
+        let isize_bytes = &gz_data[isize_start..];
+        let mut ret: u32 = isize_bytes[0] as u32;
+        ret |= (isize_bytes[1] as u32) << 8;
+        ret |= (isize_bytes[2] as u32) << 16;
+        ret |= (isize_bytes[3] as u32) << 26;
+        ret as usize
+    };
+
+    println!("input data length = {}, expected output data length = {}", gz_data.len(), isize);
+
+    let decompressed_data = {
+        let mut decompressor = Decompressor::new();
+        let mut outbuf = Vec::new();
+        outbuf.resize(isize, 0);
+        decompressor.decompress_gzip(&gz_data, &mut outbuf).unwrap();
+        outbuf
+    };
+
+    println!("output data = {:?}", str::from_utf8(&decompressed_data).unwrap());
 }
 ```
 
@@ -38,18 +71,25 @@ fn decompress(deflate_data: &[u8], out_sz: usize) -> Vec<u8> {
           accordingly.
 
 ```rust
-use crate::rlibdeflate;
+use libdeflate;
 
-use libdeflate::Compressor;
+use std::vec::Vec;
+use libdeflate::deflate::Compressor;
 
-fn compress(raw_data: &[u8]) -> Vec<u8> {
-    let mut compressor = Compressor::with_default_compression_lvl();
-    let max_out_size = compressor.compress_deflate_bound(raw_data.len());
-    let mut out = Vec::new();
-    out.resize(max_out_size, 0);
-    let actual_out_size = compressor.compress_deflate(&raw_data, &mut out).unwrap();
-    out.resize(actual_out_size, 0);
+fn main() {
+    let str_to_compress = "hello\n";
+    let str_bytes = str_to_compress.as_bytes().clone();
 
-    return out;
+    let compressed_data = {
+        let mut compressor = Compressor::with_default_compression_lvl();
+        let max_sz = compressor.compress_gzip_bound(str_bytes.len());
+        let mut compressed_data = Vec::new();
+        compressed_data.resize(max_sz, 0);
+        let actual_sz = compressor.compress_gzip(&str_bytes, &mut compressed_data).unwrap();
+        compressed_data.resize(actual_sz, 0);
+        compressed_data
+    };
+
+    println!("compressed data: {:?}", compressed_data);
 }
 ```
