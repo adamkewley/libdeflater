@@ -7,7 +7,7 @@ use criterion::Criterion;
 use flate2::write::GzEncoder;
 use flate2::Compression;
 use std::io::prelude::*;
-use libdeflate::deflate::{Compressor};
+use libdeflate::deflate::{Compressor, CompressionLvl};
 
 fn flate2_encode() {
     let mut e = GzEncoder::new(Vec::new(), Compression::Default);
@@ -17,7 +17,7 @@ fn flate2_encode() {
 
 fn libdeflate_encode() {
     let data = b"foo";
-    let mut c = Compressor::with_default_compression_lvl();
+    let mut c = Compressor::new(CompressionLvl::default());
     let mut out = Vec::new();
     out.resize(c.compress_gzip_bound(data.len()), 0);
     let actual = c.compress_gzip(data, &mut out).unwrap();
@@ -27,7 +27,6 @@ fn libdeflate_encode() {
 fn bench_flate2(b: &mut Criterion) {
     b.bench_function("flate2_gz_encode", |b| b.iter(|| flate2_encode()));
     b.bench_function("libdeflate_gz_encode", |b| b.iter(|| libdeflate_encode()));
-    
 }
 
 criterion_group!(benches, bench_flate2);

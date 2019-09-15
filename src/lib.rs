@@ -144,7 +144,6 @@ pub mod inflate {
 
 #[allow(non_upper_case_globals)]
 pub mod deflate {
-    use std::slice::Iter;
     use crate::libdeflate_sys::{libdeflate_compressor,
                                 libdeflate_alloc_compressor,
                                 libdeflate_deflate_compress_bound,
@@ -155,40 +154,46 @@ pub mod deflate {
                                 libdeflate_gzip_compress,
                                 libdeflate_free_compressor};
 
-    #[derive(Copy, Clone)]
-    pub enum CompressionLvl {
-        Lvl1 = 1,
-        Lvl2,
-        Lvl3,
-        Lvl4,
-        Lvl5,
-        Lvl6,
-        Lvl7,
-        Lvl8,
-        Lvl9,
-        Lvl10,
-        Lvl11,
-        Lvl12,
-    }
+    #[derive(Copy, Clone, PartialEq, Eq, Debug)]
+    pub struct CompressionLvl(i32);
 
     impl CompressionLvl {
-        pub fn iterator() -> Iter<'static, CompressionLvl> {
-            static compression_lvls: [CompressionLvl; 12] = [
-                CompressionLvl::Lvl1,
-                CompressionLvl::Lvl2,
-                CompressionLvl::Lvl3,
-                CompressionLvl::Lvl4,
-                CompressionLvl::Lvl5,
-                CompressionLvl::Lvl6,
-                CompressionLvl::Lvl7,
-                CompressionLvl::Lvl8,
-                CompressionLvl::Lvl9,
-                CompressionLvl::Lvl10,
-                CompressionLvl::Lvl11,
-                CompressionLvl::Lvl12
-            ];
+        pub fn new(level: i32) -> CompressionLvl {
+            CompressionLvl(level)
+        }
 
-            compression_lvls.into_iter()
+        pub fn fastest() -> CompressionLvl {
+            CompressionLvl(1)
+        }
+
+        pub fn best() -> CompressionLvl {
+            CompressionLvl(12)
+        }
+
+        pub fn iter() -> CompressionLvlIter {
+            CompressionLvlIter(1)
+        }
+    }
+
+    impl Default for CompressionLvl {
+        fn default() -> CompressionLvl {
+            CompressionLvl(6)
+        }
+    }
+
+    pub struct CompressionLvlIter(i32);
+
+    impl Iterator for CompressionLvlIter {
+        type Item = CompressionLvl;
+
+        fn next(&mut self) -> Option<Self::Item> {
+            if self.0 <= 12 {
+                let ret = Some(CompressionLvl(self.0));
+                self.0 += 1;
+                ret
+            } else {
+                None
+            }
         }
     }
 
@@ -204,25 +209,9 @@ pub mod deflate {
     }
 
     impl Compressor {
-        pub fn with_fastest_compression_lvl() -> Compressor {
-            Compressor::with_compression_lvl(CompressionLvl::Lvl1)
-        }
-        
-        pub fn with_default_compression_lvl() -> Compressor {
-            Compressor::with_compression_lvl(CompressionLvl::Lvl6)
-        }
-
-        pub fn with_slow_compression_lvl() -> Compressor {
-            Compressor::with_compression_lvl(CompressionLvl::Lvl9)
-        }
-
-        pub fn with_slowest_compression_lvl() -> Compressor {
-            Compressor::with_compression_lvl(CompressionLvl::Lvl12)
-        }
-        
-        pub fn with_compression_lvl(lvl: CompressionLvl) -> Compressor {
+        pub fn new(lvl: CompressionLvl) -> Compressor {
             unsafe {
-                let ptr = libdeflate_alloc_compressor(lvl as i32);
+                let ptr = libdeflate_alloc_compressor(lvl.0);
                 if !ptr.is_null() {
                     Compressor{ p: ptr }
                 } else {

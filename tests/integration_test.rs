@@ -332,28 +332,23 @@ fn test_calling_decompress_deflate_with_oversized_buf_returns_correct_size() {
 
 #[test]
 fn test_compressor_with_fastest_compression_lvl_calls_with_no_panics() {
-    Compressor::with_fastest_compression_lvl();
+    Compressor::new(CompressionLvl::fastest());
 }
 
 #[test]
 fn test_compressor_with_default_compression_lvl_calls_with_no_panics() {
-    Compressor::with_default_compression_lvl();
+    Compressor::new(CompressionLvl::default());
 }
 
 #[test]
-fn test_compressor_with_slow_compression_lvl_calls_with_no_panics() {
-    Compressor::with_slow_compression_lvl();
-}
-
-#[test]
-fn test_compressor_with_slowest_compression_lvl_calls_with_no_panics() {
-    Compressor::with_slowest_compression_lvl();
+fn test_compressor_with_best_compression_lvl_calls_with_no_panics() {
+    Compressor::new(CompressionLvl::best());
 }
 
 #[test]
 fn test_compressor_with_compression_lvl_can_be_called_with_all_lvls_with_no_panics() {
-    for lvl in CompressionLvl::iterator() {
-        Compressor::with_compression_lvl(*lvl);
+    for lvl in CompressionLvl::iter() {
+        Compressor::new(lvl);
     }
 }
 
@@ -363,7 +358,7 @@ fn test_compressor_with_compression_lvl_can_be_called_with_all_lvls_with_no_pani
 #[test]
 fn test_compressor_compress_deflate_bound_returns_nonzero_when_given_nonzero_input() {
     let returned_bound = {
-        let mut compressor = Compressor::with_default_compression_lvl();
+        let mut compressor = Compressor::new(CompressionLvl::default());
         compressor.compress_deflate_bound(1)
     };
 
@@ -372,7 +367,7 @@ fn test_compressor_compress_deflate_bound_returns_nonzero_when_given_nonzero_inp
 
 #[test]
 fn test_compressor_compress_deflate_with_valid_args_does_not_panic() {
-    let mut compressor = Compressor::with_default_compression_lvl();
+    let mut compressor = Compressor::new(CompressionLvl::default());
     let in_data = read_fixture_content();
     let mut out_data = Vec::new();
     let out_max_sz = compressor.compress_deflate_bound(in_data.len());
@@ -384,7 +379,7 @@ fn test_compressor_compress_deflate_with_valid_args_does_not_panic() {
 #[test]
 fn test_compressor_compress_deflate_with_undersized_buf_returns_insufficient_space() {
     let ret = {
-        let mut compressor = Compressor::with_default_compression_lvl();
+        let mut compressor = Compressor::new(CompressionLvl::default());
         let in_data = read_fixture_content();
         let mut out_data = Vec::new();
         compressor.compress_deflate(&in_data, &mut out_data)
@@ -396,7 +391,7 @@ fn test_compressor_compress_deflate_with_undersized_buf_returns_insufficient_spa
 #[test]
 fn test_compressor_compress_deflate_with_correct_args_returns_a_nonzero_size() {
     let ret = {
-        let mut compressor = Compressor::with_default_compression_lvl();
+        let mut compressor = Compressor::new(CompressionLvl::default());
         let in_data = read_fixture_content();
         let mut out_data = Vec::new();
         let out_max_sz = compressor.compress_deflate_bound(in_data.len());
@@ -413,7 +408,7 @@ fn test_compressor_compress_deflate_with_correct_args_resized_outbuf_to_return_v
     // lib for raw DEFLATE compressions
 
     let compressed_data = {
-        let mut compressor = Compressor::with_default_compression_lvl();
+        let mut compressor = Compressor::new(CompressionLvl::default());
         let in_data = read_fixture_content();
         let mut out_data = Vec::new();
         let out_max_sz = compressor.compress_deflate_bound(in_data.len());
@@ -433,7 +428,7 @@ fn test_compressor_compress_deflate_with_correct_args_resized_outbuf_to_return_v
 #[test]
 fn test_compressor_compress_zlib_bound_returns_nonzero_when_given_nonzero_input() {
     let returned_bound = {
-        let mut compressor = Compressor::with_default_compression_lvl();
+        let mut compressor = Compressor::new(CompressionLvl::default());
         compressor.compress_zlib_bound(1)
     };
 
@@ -442,7 +437,7 @@ fn test_compressor_compress_zlib_bound_returns_nonzero_when_given_nonzero_input(
 
 #[test]
 fn test_compressor_compresss_zlib_with_valid_args_does_not_panic() {
-    let mut compressor = Compressor::with_default_compression_lvl();
+    let mut compressor = Compressor::new(CompressionLvl::default());
     let in_data = read_fixture_content();
     let mut out_data = Vec::new();
     let out_max_sz = compressor.compress_zlib_bound(in_data.len());
@@ -454,7 +449,7 @@ fn test_compressor_compresss_zlib_with_valid_args_does_not_panic() {
 #[test]
 fn test_compressor_compress_zlib_with_undersized_outbuf_returns_insufficient_space() {
     let ret = {
-        let mut compressor = Compressor::with_default_compression_lvl();
+        let mut compressor = Compressor::new(CompressionLvl::default());
         let in_data = read_fixture_content();
         let mut out_data = Vec::new();
         compressor.compress_zlib(&in_data, &mut out_data)
@@ -466,7 +461,7 @@ fn test_compressor_compress_zlib_with_undersized_outbuf_returns_insufficient_spa
 #[test]
 fn test_compressor_compress_zlib_with_correct_args_returns_nonzero_size() {
     let ret = {
-        let mut compressor = Compressor::with_default_compression_lvl();
+        let mut compressor = Compressor::new(CompressionLvl::default());
         let in_data = read_fixture_content();
         let mut out_data = Vec::new();
         let out_max_sz = compressor.compress_zlib_bound(in_data.len());
@@ -484,7 +479,7 @@ fn test_compressor_compress_zlib_with_correct_args_resized_outbuf_to_return_val_
     // lib for zlib compressions
 
     let compressed_data = {
-        let mut compressor = Compressor::with_default_compression_lvl();
+        let mut compressor = Compressor::new(CompressionLvl::default());
         let in_data = read_fixture_content();
         let mut out_data = Vec::new();
         let out_max_sz = compressor.compress_zlib_bound(in_data.len());
@@ -504,7 +499,7 @@ fn test_compressor_compress_zlib_with_correct_args_resized_outbuf_to_return_val_
 #[test]
 fn test_compressor_compress_gzip_bound_returns_nonzero_when_given_nonzero_input() {
     let returned_bound = {
-        let mut compressor = Compressor::with_default_compression_lvl();
+        let mut compressor = Compressor::new(CompressionLvl::default());
         compressor.compress_gzip_bound(1)
     };
 
@@ -513,7 +508,7 @@ fn test_compressor_compress_gzip_bound_returns_nonzero_when_given_nonzero_input(
 
 #[test]
 fn test_compressor_compresss_gzip_with_valid_args_does_not_panic() {
-    let mut compressor = Compressor::with_default_compression_lvl();
+    let mut compressor = Compressor::new(CompressionLvl::default());
     let in_data = read_fixture_content();
     let mut out_data = Vec::new();
     let out_max_sz = compressor.compress_gzip_bound(in_data.len());
@@ -525,7 +520,7 @@ fn test_compressor_compresss_gzip_with_valid_args_does_not_panic() {
 #[test]
 fn test_compressor_compress_gzip_with_undersized_outbuf_returns_insufficient_space() {
     let ret = {
-        let mut compressor = Compressor::with_default_compression_lvl();
+        let mut compressor = Compressor::new(CompressionLvl::default());
         let in_data = read_fixture_content();
         let mut out_data = Vec::new();
         compressor.compress_gzip(&in_data, &mut out_data)
@@ -537,7 +532,7 @@ fn test_compressor_compress_gzip_with_undersized_outbuf_returns_insufficient_spa
 #[test]
 fn test_compressor_compress_gzip_with_correct_args_returns_nonzero_size() {
     let ret = {
-        let mut compressor = Compressor::with_default_compression_lvl();
+        let mut compressor = Compressor::new(CompressionLvl::default());
         let in_data = read_fixture_content();
         let mut out_data = Vec::new();
         let out_max_sz = compressor.compress_gzip_bound(in_data.len());
@@ -555,7 +550,7 @@ fn test_compressor_compress_gzip_with_correct_args_resized_outbuf_to_return_val_
     // lib for gzip compressions
 
     let compressed_data = {
-        let mut compressor = Compressor::with_default_compression_lvl();
+        let mut compressor = Compressor::new(CompressionLvl::default());
         let in_data = read_fixture_content();
         let mut out_data = Vec::new();
         let out_max_sz = compressor.compress_gzip_bound(in_data.len());
@@ -577,7 +572,7 @@ fn test_compress_zlib_then_decompress_zlib_works_and_produces_the_same_input_dat
     let input_data = read_fixture_content();
     
     let compression_buf = {
-        let mut compressor = Compressor::with_default_compression_lvl();
+        let mut compressor = Compressor::new(CompressionLvl::default());
         let mut compression_buf = Vec::new();
         let compressed_max_sz = compressor.compress_zlib_bound(input_data.len());
         compression_buf.resize(compressed_max_sz, 0);
@@ -604,7 +599,7 @@ fn test_compress_deflate_then_decompress_deflate_works_and_produces_the_same_inp
     let input_data = read_fixture_content();
     
     let compression_buf = {
-        let mut compressor = Compressor::with_default_compression_lvl();
+        let mut compressor = Compressor::new(CompressionLvl::default());
         let mut compression_buf = Vec::new();
         let compressed_max_sz = compressor.compress_deflate_bound(input_data.len());
         compression_buf.resize(compressed_max_sz, 0);
@@ -631,7 +626,7 @@ fn test_compress_gzip_then_decompress_gzip_works_and_produces_the_same_input_dat
     let input_data = read_fixture_content();
     
     let compression_buf = {
-        let mut compressor = Compressor::with_default_compression_lvl();
+        let mut compressor = Compressor::new(CompressionLvl::default());
         let mut compression_buf = Vec::new();
         let compressed_max_sz = compressor.compress_gzip_bound(input_data.len());
         compression_buf.resize(compressed_max_sz, 0);
