@@ -1,0 +1,10 @@
+# custom benchmarks to run on sample data.
+#
+# the data isn't typically in the repo. This file is used as an input
+# to a special `cargo bench` target that will benchmark each file
+# listed here
+
+[wiki]
+path = "information-theory.txt"
+summary = "wiki plaintext"
+description = "source grab of information theory wiki page"
