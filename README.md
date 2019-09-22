@@ -4,92 +4,29 @@ Rust bindings to [libdeflate](https://github.com/ebiggers/libdeflate)
 
 Libdeflate is a block-based compressor that requires supplying the the
 whole input/output buffer up-front. It is a simple,
-performance-focused compression library that is typically used
-[BAM](https://samtools.github.io/hts-specs/SAMv1.pdf) files.
+performance-focused compression library that is typically used in
+genomic [BAM](https://samtools.github.io/hts-specs/SAMv1.pdf) files.
 
 
-# Decompression Example
+# Compression Performance (Calgary Corpus)
 
-**Note**: This is simplified. High-perf implementations (e.g. genomic
-          pipelines) would recycle the `decompressor` and buffers
-          accordingly.
+Single-threaded compression performance 
 
-```rust
-use libdeflate;
-
-use std::vec::Vec;
-use std::fs::File;
-use std::io::Read;
-use std::str;
-use libdeflate::inflate::Decompressor;
-
-fn main() {
-    let gz_data = {
-        let mut f = File::open("tests/hello.gz").unwrap();
-        let mut content = Vec::new();
-        f.read_to_end(&mut content).unwrap();
-        content
-    };
-
-    if gz_data.len() < 10 {
-        panic!("gz data is too short (for magic bytes + footer");
-    }
-
-    // gzip RFC1952: a valid gzip file has an ISIZE field in the
-    // footer, which is a little-endian u32 number representing the
-    // decompressed size. This is ideal for libdeflate, which needs
-    // preallocating the decompressed buffer.
-    let isize = {
-        let isize_start = gz_data.len() - 4;
-        let isize_bytes = &gz_data[isize_start..];
-        let mut ret: u32 = isize_bytes[0] as u32;
-        ret |= (isize_bytes[1] as u32) << 8;
-        ret |= (isize_bytes[2] as u32) << 16;
-        ret |= (isize_bytes[3] as u32) << 26;
-        ret as usize
-    };
-
-    println!("input data length = {}, expected output data length = {}", gz_data.len(), isize);
-
-    let decompressed_data = {
-        let mut decompressor = Decompressor::new();
-        let mut outbuf = Vec::new();
-        outbuf.resize(isize, 0);
-        decompressor.decompress_gzip(&gz_data, &mut outbuf).unwrap();
-        outbuf
-    };
-
-    println!("output data = {:?}", str::from_utf8(&decompressed_data).unwrap());
-}
 ```
-
-
-# Compression Example
-
-**Note**: This is simplified. High-perf implementations (e.g. genomic
-          pipelines) would recycle the `decompressor` and buffers
-          accordingly.
-
-```rust
-use libdeflate;
-
-use std::vec::Vec;
-use libdeflate::deflate::Compressor;
-
-fn main() {
-    let str_to_compress = "hello\n";
-    let str_bytes = str_to_compress.as_bytes().clone();
-
-    let compressed_data = {
-        let mut compressor = Compressor::with_default_compression_lvl();
-        let max_sz = compressor.compress_gzip_bound(str_bytes.len());
-        let mut compressed_data = Vec::new();
-        compressed_data.resize(max_sz, 0);
-        let actual_sz = compressor.compress_gzip(&str_bytes, &mut compressed_data).unwrap();
-        compressed_data.resize(actual_sz, 0);
-        compressed_data
-    };
-
-    println!("compressed data: {:?}", compressed_data);
-}
+bench     size [KB]    flate2 [us]    libdeflate [us]    speedup
+----------------------------------------------------------------
+paper1    53           112725         84636              1.3
+progc     39           71801          56379              1.3
+trans     93           130350         95235              1.4
+obj1      21           57703          55165              1.0
+pic       513          528318         219402             2.4
+paper2    82           224239         77545              2.9
+book1     768          376075         849271             0.4
+progl     71           129568         90734              1.4
+geo       102          389463         71096              5.5
+obj2      246          331353         160858             2.1
+news      377          267790         303038             0.9
+bib       111          276025         91757              3.0
+progp     49           76474          55564              1.4
+book2     610          381831         567885             0.7
 ```

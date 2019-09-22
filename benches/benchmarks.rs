@@ -4,7 +4,7 @@ extern crate flate2;
 extern crate libdeflate;
 extern crate toml;
 
-use criterion::Criterion;
+use criterion::{Criterion, BenchmarkId, Throughput};
 use flate2::write::GzEncoder;
 use flate2::read::GzDecoder;
 use flate2::Compression;
@@ -103,13 +103,14 @@ impl LibdeflateDecoder {
 // is worth the plunge.
 fn custom_benchmarks(b: &mut Criterion) {
     let cfg: HashMap<String, CustomBenchmark> = toml::from_str(&fs::read_to_string("benches/custom-benches.toml").unwrap()).unwrap();
-
-    let mut libdeflate_enc = LibdeflateEncoder::new();
-    let mut flate2_enc = Flate2Encoder::new();
     let mut buf: Vec<u8> = Vec::new();
-
-    for k in cfg.keys() {
+    let mut flate2_enc = Flate2Encoder::new();
+    let mut libdeflate_enc = LibdeflateEncoder::new();
+    
+    for k in cfg.keys() {        
         let entry = cfg.get(k).unwrap();
+        let mut grp = b.benchmark_group(&entry.summary);
+        
         let data = {
             let mut file = File::open(&entry.path).unwrap();
             let mut data = Vec::new();
@@ -117,17 +118,19 @@ fn custom_benchmarks(b: &mut Criterion) {
             data
         };
 
-        let n1 = format!("{} - flate2", entry.summary);
-        b.bench_function(&n1, |b| b.iter(|| {
+        grp.throughput(Throughput::Elements(data.len() as u64));
+        
+        grp.bench_function("flate2", |b| b.iter(|| {
             flate2_enc.encode(&data, &mut buf);
             buf.resize(0, 0);
         }));
 
-        let n2 = format!("{} - libdeflate", entry.summary);
-        b.bench_function(&n2, |b| b.iter(|| {
+        grp.bench_function("libdeflate", |b| b.iter(|| {
             libdeflate_enc.encode(&data, &mut buf);
             buf.resize(0, 0);
         }));
+
+        grp.finish();
     }
 }
 

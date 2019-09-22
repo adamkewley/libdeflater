@@ -4,7 +4,77 @@
 # to a special `cargo bench` target that will benchmark each file
 # listed here
 
-[wiki]
-path = "information-theory.txt"
-summary = "wiki plaintext"
-description = "source grab of information theory wiki page"
+# Manually extracted by browsing to Information Theory wiki page,
+# clicking "Edit", then pasting it into the path
+
+# These files are just entries from the Calgary Corpus
+
+[bib]
+path = "bench_data/bib"
+summary = "BIB"
+description = 'ASCII text in UNIX "refer" format – 725 bibliographic references.'
+
+[book1]
+path = "bench_data/book1"
+summary = "BOOK1"
+description = "unformatted ASCII text – Thomas Hardy: Far from the Madding Crowd."
+
+[book2]
+path = "bench_data/book2"
+summary = "BOOK2"
+description = 'ASCII text in UNIX "troff" format – Witten: Principles of Computer Speech.'
+
+[geo]
+path = "bench_data/geo"
+summary = "GEO"
+description = "32 bit numbers in IBM floating point format – seismic data"
+
+[news]
+path = "bench_data/news"
+summary = "NEWS"
+description = "ASCII text – USENET batch file on a variety of topics."
+
+[obj1]
+path = "bench_data/obj1"
+summary = "OBJ1"
+description = "VAX executable program – compilation of PROGP."
+
+[obj2]
+path = "bench_data/obj2"
+summary = "OBJ2"
+description = 'Macintosh executable program – "Knowledge Support System".'
+
+[paper1]
+path = "bench_data/paper1"
+summary = "PAPER1"
+description = 'UNIX "troff" format – Witten, Neal, Cleary: Arithmetic Coding for Data Compression.'
+
+[paper2]
+path = "bench_data/paper2"
+summary = "PAPER2"
+description = 'UNIX "troff" format – Witten: Computer (in)security.'
+
+[pic]
+path = "bench_data/pic"
+summary = "PIC"
+description = "1728 x 2376 bitmap image (MSB first): text in French and line diagrams."
+
+[progc]
+path = "bench_data/progc"
+summary = "PROGC"
+description = "Source code in C – UNIX compress v4.0."
+
+[progl]
+path = "bench_data/progl"
+summary = "PROGL"
+description = "Source code in Lisp – system software."
+
+[progp]
+path = "bench_data/progp"
+summary = "PROGP"
+description = "Source code in Pascal – program to evaluate PPM compression."
+
+[trans]
+path = "bench_data/trans"
+summary = "TRANS"
+description = "ASCII and control characters – transcript of a terminal session."
