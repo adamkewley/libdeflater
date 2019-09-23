@@ -3,10 +3,7 @@
 # This just processes the CSV data made by Criterion into a table
 # that's easier to read in the README
 
-def avg_ns_from_csv(csv)
-  measured_vals = csv.lines().drop(1).map { |line| line.split(",")[5].to_f }.to_a()
-  (measured_vals.inject(:+) / measured_vals.size)
-end
+require 'json'
 
 results = []
 cols = ["bench", "size [KB]", "flate2 [us]", "libdeflate [us]", "speedup"]
@@ -14,10 +11,8 @@ cols = ["bench", "size [KB]", "flate2 [us]", "libdeflate [us]", "speedup"]
 for dir in Dir.glob("target/criterion/**") do
   group = dir.split("/")[-1].downcase()
   filesize = File.size(File.join("bench_data", group))
-  flate2_csv = File.read(File.join(dir, "flate2", "new", "raw.csv"))
-  flate2_avg = avg_ns_from_csv(flate2_csv)
-  libdeflate_csv = File.read(File.join(dir, "libdeflate", "new", "raw.csv"))
-  libdeflate_avg = avg_ns_from_csv(libdeflate_csv)
+  flate2_avg = JSON.parse(File.read(File.join(dir, "flate2_encode", "new", "estimates.json")))["Mean"]["point_estimate"]
+  libdeflate_avg = JSON.parse(File.read(File.join(dir, "libdeflate_encode", "new", "estimates.json")))["Mean"]["point_estimate"]
   speedup = (flate2_avg.to_f()/libdeflate_avg.to_f()).round(1).to_s()
 
   result = {
