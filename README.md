@@ -1,49 +1,29 @@
 # rlibdeflate
 
-Rust bindings to [libdeflate](https://github.com/ebiggers/libdeflate)
+Rust bindings to [libdeflate](https://github.com/ebiggers/libdeflate).
+A high-performance library for working with gzip/zlib/deflate data.
 
-Because libdeflate requires complete buffers up-front, it's unsuitable
-for applications that rely on streaming compression (e.g. webservers,
-applications that accept arbitrary sizes ofinput data). Rustaceans
-looking for a general-purpose compressor should use something like
-[flate2](https://github.com/alexcrichton/flate2-rs).
+**Warning**: libdeflate is for *specialized* use-cases. You should 
+             use something like [flate2](https://github.com/alexcrichton/flate2-rs)
+             if you want a general-purpose deflate library.
 
-For applications that typically have all input data up front, and have
-a mechanism for chunking large input datasets (e.g. genomic data, vcs
-systems, specialized backends, game netcode compressors), libdeflate
-might be worth considering because it has a simple API and is
-typically faster than streaming compressors for small inputs (see
-benchmarks).
-
-# Decompression Example
-
-TODO
+libdeflate is optimal in applications that have all input data up
+and have a mechanism for chunking large input datasets (e.g. genomic
+[bam](https://samtools.github.io/hts-specs/SAMv1.pdf) files, some object 
+stores, specialized backends, game netcode packets). It has a much simpler
+API than [zlib](https://www.zlib.net/manual.html) but can't stream data.
 
 
-# Benchmarks
+# Performance
 
-- Benchmark data is from the [Calgary
-  Corpus](https://en.wikipedia.org/wiki/Calgary_corpus), which has a
-  decent range of input data types + sizes.
+Benchmark data is from the [Calgary Corpus](https://en.wikipedia.org/wiki/Calgary_corpus), 
+which has a decent range of input data types + sizes. See benchmark notes below for more
+details.
 
-- Benchmarks were ran by unpacking the corpus into `bench_data` in
-  this repo then running `cargo bench` which, in turn, runs
-  [this](benches/custom_benches.rs) custom benchmark suite configured
-  with [this](benches/custom-benches.toml) config.
-
-- The results were aggregated with [this](scripts/process-bench.rb)
-  ruby script that extracts `Mean.point_estimate` from `Criterion`'s
-  `estimates.json`
-
-- All benchmarks are single-threaded
-
-- Comparison made against `flate2` with no feature flags (i.e. `miniz`
-  implementation). `flate2` was chosen because it's the most popular.
-
-
-## Compression Benchmarks
+### Compression
 
 - Compression performed with default compression setting in both cases
+
 
 ```
 bench     size [KB]    flate2 [us]    libdeflate [us]    speedup
@@ -63,7 +43,7 @@ progp     49           1430           528                2.7
 book2     610          32777          10779              3.0
 ```
 
-## Decompression Benchmarks
+### Decompression
 
 - Corpus entries were compressed with `flate2` at default compression
   level
@@ -85,3 +65,24 @@ bib       111          711            183                3.9
 progp     49           272            63                 4.3
 book2     610          4086           1009               4.1
 ```
+
+
+# Benchmark Notes
+
+- Benchmark data is from the [Calgary Corpus](https://en.wikipedia.org/wiki/Calgary_corpus), 
+  which has a decent range of input data types + sizes.
+
+- Benchmarks were ran by unpacking the corpus into `bench_data` in
+  this repo then running `cargo bench` which, in turn, runs
+  [this](benches/custom_benches.rs) custom benchmark suite configured
+  with [this](benches/custom-benches.toml) config.
+
+- The results were aggregated with [this](scripts/process-bench.rb)
+  ruby script that extracts `Mean.point_estimate` from `Criterion`'s
+  `estimates.json`
+
+- All benchmarks are single-threaded
+
+- Comparison made against `flate2` with no feature flags (i.e. `miniz`
+  implementation). `flate2` was chosen because it's the most popular.
+  
