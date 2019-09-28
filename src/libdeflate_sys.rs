@@ -8,7 +8,8 @@
 include!(concat!(env!("OUT_DIR"), "/bindings.rs"));
 
 // Basic tests for Rust-to-C bindings. These tests are just for quick
-// internal checks. User-facing tests are in `tests/`
+// internal checks to make sure that the bindgen build script built
+// something sane-looking. User-facing tests are in `tests/`
 #[cfg(test)]
 mod tests {
     use super::*;

@@ -1,7 +1,7 @@
-use libdeflate;
+extern crate libdeflater;
 
 use std::vec::Vec;
-use libdeflate::deflate::{Compressor, CompressionLvl};
+use libdeflater::{Compressor, CompressionLvl};
 
 fn main() {
     let str_to_compress = "hello\n";

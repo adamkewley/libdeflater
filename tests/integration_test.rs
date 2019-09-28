@@ -1,10 +1,9 @@
-extern crate libdeflate;
+extern crate libdeflater;
 
 use std::fs::File;
 use std::io::Read;
 use std::vec::Vec;
-use libdeflate::inflate::{Decompressor, Error};
-use libdeflate::deflate::{Compressor, CompressionLvl, Error as DeflateError};
+use libdeflater::{Compressor, CompressionLvl, CompressionError, Decompressor, DecompressionError};
 
 
 
@@ -114,7 +113,7 @@ fn test_calling_decompress_gzip_with_undersized_outbuf_returns_insufficient_spac
         decompressor.decompress_gzip(&content, &mut decompressed)
     };
 
-    assert_eq!(result.unwrap_err(), Error::InsufficientSpace);
+    assert_eq!(result.unwrap_err(), DecompressionError::InsufficientSpace);
 }
 
 #[test]
@@ -157,7 +156,7 @@ fn test_calling_decompress_gzip_with_bad_magic_num_returns_bad_data() {
     decompressed.resize(fixture_content_size(), 0);
     let result = decompressor.decompress_gzip(&content, &mut decompressed);
 
-    assert_eq!(result.unwrap_err(), Error::BadData);
+    assert_eq!(result.unwrap_err(), DecompressionError::BadData);
 }
 
 #[test]
@@ -168,7 +167,7 @@ fn test_calling_decompress_gzip_with_corrupted_crc32_returns_bad_data() {
     decompressed.resize(fixture_content_size(), 0);
     let result = decompressor.decompress_gzip(&content, &mut decompressed);
 
-    assert_eq!(result.unwrap_err(), Error::BadData);
+    assert_eq!(result.unwrap_err(), DecompressionError::BadData);
 }
 
 #[test]
@@ -179,7 +178,7 @@ fn test_calling_decompress_gzip_with_corrupted_isize_returns_bad_data() {
     decompressed.resize(fixture_content_size(), 0);
     let result = decompressor.decompress_gzip(&content, &mut decompressed);
 
-    assert_eq!(result.unwrap_err(), Error::BadData);
+    assert_eq!(result.unwrap_err(), DecompressionError::BadData);
 }
 
 
@@ -205,7 +204,7 @@ fn test_calling_decompress_zlib_with_undersized_outbuf_returns_insufficient_spac
         decompressor.decompress_zlib(&content, &mut decompressed)
     };
 
-    assert_eq!(result.unwrap_err(), Error::InsufficientSpace);
+    assert_eq!(result.unwrap_err(), DecompressionError::InsufficientSpace);
 }
 
 #[test]
@@ -251,7 +250,7 @@ fn test_calling_decompress_zlib_with_bad_cmf_field_returns_bad_data() {
         decompressor.decompress_zlib(&content, &mut decompressed)
     };
 
-    assert_eq!(ret.unwrap_err(), Error::BadData);
+    assert_eq!(ret.unwrap_err(), DecompressionError::BadData);
 }
 
 #[test]
@@ -265,7 +264,7 @@ fn test_calling_decompress_zlib_with_bad_adler32_checksum_returns_bad_data() {
         decompressor.decompress_zlib(&content, &mut decompressed)
     };
 
-    assert_eq!(ret.unwrap_err(), Error::BadData);
+    assert_eq!(ret.unwrap_err(), DecompressionError::BadData);
 }
 
 
@@ -291,7 +290,7 @@ fn test_calling_decompress_deflate_with_undersized_outbuf_returns_insufficient_s
         decompressor.decompress_deflate(&content, &mut decompressed)
     };
 
-    assert_eq!(result.unwrap_err(), Error::InsufficientSpace);
+    assert_eq!(result.unwrap_err(), DecompressionError::InsufficientSpace);
 }
 
 #[test]
@@ -385,7 +384,7 @@ fn test_compressor_compress_deflate_with_undersized_buf_returns_insufficient_spa
         compressor.compress_deflate(&in_data, &mut out_data)
     };
 
-    assert_eq!(ret.unwrap_err(), DeflateError::InsufficientSpace);
+    assert_eq!(ret.unwrap_err(), CompressionError::InsufficientSpace);
 }
 
 #[test]
@@ -455,7 +454,7 @@ fn test_compressor_compress_zlib_with_undersized_outbuf_returns_insufficient_spa
         compressor.compress_zlib(&in_data, &mut out_data)
     };
 
-    assert_eq!(ret.unwrap_err(), DeflateError::InsufficientSpace);
+    assert_eq!(ret.unwrap_err(), CompressionError::InsufficientSpace);
 }
 
 #[test]
@@ -526,7 +525,7 @@ fn test_compressor_compress_gzip_with_undersized_outbuf_returns_insufficient_spa
         compressor.compress_gzip(&in_data, &mut out_data)
     };
 
-    assert_eq!(ret.unwrap_err(), DeflateError::InsufficientSpace);
+    assert_eq!(ret.unwrap_err(), CompressionError::InsufficientSpace);
 }
 
 #[test]

@@ -1,75 +1,94 @@
-# rlibdeflate
+# libdeflater
+
+[![Build Status](https://travis-ci.org/adamkewley/libdeflater.svg?branch=master)](https://travis-ci.org/adamkewley/libdeflater)
 
 Rust bindings to [libdeflate](https://github.com/ebiggers/libdeflate).
 A high-performance library for working with gzip/zlib/deflate data.
 
-**Warning**: libdeflate is for *specialized* use-cases. You should 
+```
+libdeflater = "0.1.0"
+```
+
+**Warning**: libdeflate is for *specialized* use-cases. You should
              use something like [flate2](https://github.com/alexcrichton/flate2-rs)
              if you want a general-purpose deflate library.
 
-libdeflate is optimal in applications that have all input data up
-and have a mechanism for chunking large input datasets (e.g. genomic
-[bam](https://samtools.github.io/hts-specs/SAMv1.pdf) files, some object 
-stores, specialized backends, game netcode packets). It has a much simpler
-API than [zlib](https://www.zlib.net/manual.html) but can't stream data.
+libdeflate is optimal in applications that have all input data up and
+have a mechanism for chunking large input datasets (e.g. genomic
+[bam](https://samtools.github.io/hts-specs/SAMv1.pdf) files, some
+object stores, specialized backends, game netcode packets). It has a
+much simpler API than [zlib](https://www.zlib.net/manual.html) but
+can't stream data.
 
 
-# Performance
+# Examples
 
-Benchmark data is from the [Calgary Corpus](https://en.wikipedia.org/wiki/Calgary_corpus), 
+Example source [here](examples). To run the examples:
+
+```bash
+cargo run --example gz_compress.rs
+cargo run --example gz_decompress.rs
+```
+
+
+# Benchmarks
+
+Benchmark data is from the [Calgary Corpus](https://en.wikipedia.org/wiki/Calgary_corpus),
 which has a decent range of input data types + sizes. See benchmark notes below for more
-details.
+details. The benchmark tables below were made with this set of steps:
+
+```bash
+wget http://www.data-compression.info/files/corpora/largecalgarycorpus.zip
+mkdir bench_data
+unzip -d bench_data largecalgarycorpus.zip
+cargo bench
+scripts/process-bench.rb encode
+scripts/process-bench.rb decode
+```
 
 ### Compression
 
-- Compression performed with default compression setting in both cases
-
-
 ```
 bench     size [KB]    flate2 [us]    libdeflate [us]    speedup
-paper1    53           2141           813                2.6
-progc     39           1364           534                2.6
-trans     93           2463           893                2.8
-obj1      21           561            206                2.7
-pic       513          11699          4222               2.8
-paper2    82           4200           1472               2.9
-book1     768          52775          16020              3.3
-progl     71           2437           852                2.9
-geo       102          11651          1347               8.6
-obj2      246          11674          3026               3.9
-news      377          16108          5661               2.8
-bib       111          5219           1818               2.9
-progp     49           1430           528                2.7
-book2     610          32777          10779              3.0
+bib       111          5164           1671               3.1
+book1     768          56103          17216              3.3
+book2     610          32104          10401              3.1
+geo       102          11517          1313               8.8
+news      377          15854          5548               2.9
+obj1      21           543            200                2.7
+obj2      246          12421          3161               3.9
+paper1    53           2092           778                2.7
+paper2    82           4176           1425               2.9
+pic       513          12307          4337               2.8
+progc     39           1446           559                2.6
+progl     71           2654           891                3.0
+progp     49           1416           513                2.8
+trans     93           2424           875                2.8
 ```
 
 ### Decompression
 
-- Corpus entries were compressed with `flate2` at default compression
-  level
-
 ```
 bench     size [KB]    flate2 [us]    libdeflate [us]    speedup
-paper1    53           321            88                 3.7
-progc     39           234            66                 3.5
-trans     93           450            102                4.4
-obj1      21           146            53                 2.8
-pic       513          2408           424                5.7
-paper2    82           512            133                3.8
-book1     768          5163           1399               3.7
-progl     71           368            82                 4.5
-geo       102          764            301                2.5
-obj2      246          1633           440                3.7
-news      377          2475           715                3.5
-bib       111          711            183                3.9
-progp     49           272            63                 4.3
-book2     610          4086           1009               4.1
+bib       111          667            167                4.0
+book1     768          5590           1500               3.7
+book2     610          3864           927                4.2
+geo       102          822            322                2.6
+news      377          2483           702                3.5
+obj1      21           136            47                 2.9
+obj2      246          1593           426                3.7
+paper1    53           319            87                 3.7
+paper2    82           508            132                3.9
+pic       513          2420           415                5.8
+progc     39           248            70                 3.5
+progl     71           398            88                 4.5
+progp     49           250            58                 4.3
+trans     93           447            101                4.4
 ```
 
+### Benchmark Notes
 
-# Benchmark Notes
-
-- Benchmark data is from the [Calgary Corpus](https://en.wikipedia.org/wiki/Calgary_corpus), 
+- Benchmark data is from the [Calgary Corpus](https://en.wikipedia.org/wiki/Calgary_corpus),
   which has a decent range of input data types + sizes.
 
 - Benchmarks were ran by unpacking the corpus into `bench_data` in
@@ -85,4 +104,8 @@ book2     610          4086           1009               4.1
 
 - Comparison made against `flate2` with no feature flags (i.e. `miniz`
   implementation). `flate2` was chosen because it's the most popular.
-  
+
+- Compression performed with default compression setting in both cases
+
+- Corpus entries were compressed with `flate2` at default compression
+  level

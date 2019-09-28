@@ -1,10 +1,10 @@
-use libdeflate;
+extern crate libdeflater;
 
 use std::vec::Vec;
 use std::fs::File;
 use std::io::Read;
 use std::str;
-use libdeflate::inflate::Decompressor;
+use libdeflater::Decompressor;
 
 fn main() {
     let gz_data = {

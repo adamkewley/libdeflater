@@ -1,19 +1,23 @@
 extern crate flate2;
-extern crate libdeflate;
+extern crate libdeflater;
 extern crate toml;
 
-use criterion::{Criterion};
-use flate2::write::GzEncoder;
-use flate2::read::GzDecoder;
-use flate2::Compression;
 use std::io::prelude::*;
-use libdeflate::deflate::{Compressor, CompressionLvl};
-use libdeflate::inflate::{Decompressor};
 use std::fs;
 use std::io;
 use std::fs::{File};
-use serde::{Deserialize};
 use std::collections::{HashMap};
+use serde::{Deserialize};
+
+// benchmarking lib
+use criterion::{Criterion};
+
+// (de)compression libs
+use flate2::Compression;
+use flate2::write::GzEncoder;
+use flate2::read::GzDecoder;
+use libdeflater::{Compressor, CompressionLvl, Decompressor};
+
 
 // Custom benchmarks can be specified in
 // benches/custom-benchmarks.toml. They are benchmarks over data that
@@ -21,14 +25,8 @@ use std::collections::{HashMap};
 #[derive(Deserialize)]
 struct CustomBenchmark {
     path: String,
-    summary: String,
 }
 
-// ENCODERS: Encoder assumptions are that an encoder may have state
-// (constructed via ::new) and an ::encode method that receives data +
-// output buffer to do a one-shot compression. Libdeflate cannot do
-// streaming compression, so these benchmarks can only show one-shot
-// perf.
 
 // flate2
 struct Flate2Encoder();
@@ -98,56 +96,23 @@ impl LibdeflateDecoder {
 // `benches/custom-benches.toml`. It's done this way because the
 // benchmarked data can't be kept in the repo and different devs will
 // want to benchmark different corpuses of data to see if libdeflate
-// is worth the plunge.
-pub fn run_compression_benches(b: &mut Criterion) {
-    let cfg: HashMap<String, CustomBenchmark> = toml::from_str(&fs::read_to_string("benches/custom-benches.toml").unwrap()).unwrap();
+// is suitable for their needs
+pub fn run_custom_benches(b: &mut Criterion) {
+    let cfg: HashMap<String, CustomBenchmark> =
+        toml::from_str(&fs::read_to_string("benches/custom-benches.toml").unwrap()).unwrap();
+
     let mut buf: Vec<u8> = Vec::new();
-    let mut flate2_enc = Flate2Encoder::new();
-    let mut libdeflate_enc = LibdeflateEncoder::new();
+    let mut flate2_encoder = Flate2Encoder::new();
+    let mut libdeflate_encoder = LibdeflateEncoder::new();
+    let mut flate2_decoder = Flate2Decoder::new();
+    let mut libdeflate_decoder = LibdeflateDecoder::new();
 
     for k in cfg.keys() {
         let entry = cfg.get(k).unwrap();
-        let mut grp = b.benchmark_group(&entry.summary);
+        let mut grp = b.benchmark_group(k);
 
-        let data = {
-            let mut file = File::open(&entry.path).unwrap();
-            let mut data = Vec::new();
-            file.read_to_end(&mut data).unwrap();
-            data
-        };
-
-        grp.bench_function("flate2_encode", |b| b.iter(|| {
-            flate2_enc.encode(&data, &mut buf);
-            buf.resize(0, 0);
-        }));
-
-        grp.bench_function("libdeflate_encode", |b| b.iter(|| {
-            libdeflate_enc.encode(&data, &mut buf);
-            buf.resize(0, 0);
-        }));
-
-        grp.finish();
-    }
-}
-
-// Compress data to gzip using flate2 (we don't bother benching
-// libdeflate's performance when decompressing flate2 vs libdeflate
-// data
-fn compress_to_gz(data: &[u8]) -> Vec<u8> {
-    let mut buf = Vec::new();
-    Flate2Encoder::new().encode(&data, &mut buf);
-    return buf;
-}
-
-pub fn run_decompression_benches(b: &mut Criterion) {
-    let cfg: HashMap<String, CustomBenchmark> = toml::from_str(&fs::read_to_string("benches/custom-benches.toml").unwrap()).unwrap();
-    let mut buf: Vec<u8> = Vec::new();
-    let mut flate2 = Flate2Decoder::new();
-    let mut libdeflate = LibdeflateDecoder::new();
-
-    for k in cfg.keys() {
-        let entry = cfg.get(k).unwrap();
-        let mut grp = b.benchmark_group(&entry.summary);
+        // these are quite big compressions
+        grp.sample_size(20);
 
         let raw_data = {
             let mut file = File::open(&entry.path).unwrap();
@@ -156,16 +121,32 @@ pub fn run_decompression_benches(b: &mut Criterion) {
             data
         };
 
-        let compressed_data = compress_to_gz(&raw_data);
+        grp.bench_function("flate2_encode", |b| b.iter(|| {
+            flate2_encoder.encode(&raw_data, &mut buf);
+            buf.resize(0, 0);
+        }));
+
+        grp.bench_function("libdeflate_encode", |b| b.iter(|| {
+            libdeflate_encoder.encode(&raw_data, &mut buf);
+            buf.resize(0, 0);
+        }));
+
+        let compressed_data = {
+            let mut buf = Vec::new();
+            Flate2Encoder::new().encode(&raw_data, &mut buf);
+            buf
+        };
 
         grp.bench_function("flate2_decode", |b| b.iter(|| {
-            flate2.decode(&compressed_data, raw_data.len(),  &mut buf);
-            buf.resize(0, 0);
+            buf.clear();
+            flate2_decoder.decode(&compressed_data, raw_data.len(),  &mut buf);
         }));
 
         grp.bench_function("libdeflate_decode", |b| b.iter(|| {
-            libdeflate.decode(&compressed_data, raw_data.len(),  &mut buf);
-            buf.resize(0, 0);
+            buf.clear();
+            libdeflate_decoder.decode(&compressed_data, raw_data.len(),  &mut buf);
         }));
+
+        grp.finish();
     }
 }
