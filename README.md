@@ -1,6 +1,7 @@
 # libdeflater
 
 [![Build Status](https://travis-ci.org/adamkewley/libdeflater.svg?branch=master)](https://travis-ci.org/adamkewley/libdeflater)
+[![Crates.io](https://img.shields.io/crates/v/libdeflater.svg?maxAge=2592000)](https://crates.io/crates/libdeflater)
 
 Rust bindings to [libdeflate](https://github.com/ebiggers/libdeflate).
 A high-performance library for working with gzip/zlib/deflate data.
