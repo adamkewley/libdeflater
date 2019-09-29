@@ -51,41 +51,41 @@ scripts/process-bench.rb decode
 ### Compression
 
 ```
-bench     size [KB]    flate2 [us]    libdeflate [us]    speedup
-bib       111          5164           1671               3.1
-book1     768          56103          17216              3.3
-book2     610          32104          10401              3.1
-geo       102          11517          1313               8.8
-news      377          15854          5548               2.9
-obj1      21           543            200                2.7
-obj2      246          12421          3161               3.9
-paper1    53           2092           778                2.7
-paper2    82           4176           1425               2.9
-pic       513          12307          4337               2.8
-progc     39           1446           559                2.6
-progl     71           2654           891                3.0
-progp     49           1416           513                2.8
-trans     93           2424           875                2.8
+bench     size [KB]    speedup    flate2 [us]    libdeflate [us]
+bib       111          3.2        5310           1678
+book1     768          3.4        52818          15691
+book2     610          3.1        31973          10447
+geo       102          8.7        11447          1316
+news      377          2.8        16156          5699
+obj1      21           2.7        539            203
+obj2      246          3.8        11447          3011
+paper1    53           2.7        2206           824
+paper2    82           2.9        4298           1501
+pic       513          2.8        11438          4082
+progc     39           2.6        1426           548
+progl     71           2.9        2444           838
+progp     49           3.0        1548           524
+trans     93           2.8        2432           882
 ```
 
 ### Decompression
 
 ```
-bench     size [KB]    flate2 [us]    libdeflate [us]    speedup
-bib       111          667            167                4.0
-book1     768          5590           1500               3.7
-book2     610          3864           927                4.2
-geo       102          822            322                2.6
-news      377          2483           702                3.5
-obj1      21           136            47                 2.9
-obj2      246          1593           426                3.7
-paper1    53           319            87                 3.7
-paper2    82           508            132                3.9
-pic       513          2420           415                5.8
-progc     39           248            70                 3.5
-progl     71           398            88                 4.5
-progp     49           250            58                 4.3
-trans     93           447            101                4.4
+bench     size [KB]    speedup    flate2 [us]    libdeflate [us]
+bib       111          3.9        662            170
+book1     768          3.7        5130           1390
+book2     610          4.2        3822           921
+geo       102          2.6        764            293
+news      377          3.5        2529           714
+obj1      21           2.9        136            47
+obj2      246          3.7        1485           396
+paper1    53           4.0        341            86
+paper2    82           3.8        508            134
+pic       513          5.7        2248           393
+progc     39           3.6        244            68
+progl     71           4.5        376            84
+progp     49           4.3        262            61
+trans     93           4.4        448            101
 ```
 
 ### Benchmark Notes

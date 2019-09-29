@@ -13,7 +13,7 @@ if suffix != "encode" and suffix != "decode"
 end
 
 results = []
-cols = ["bench", "size [KB]", "flate2 [us]", "libdeflate [us]", "speedup"]
+cols = ["bench", "size [KB]", "speedup", "flate2 [us]", "libdeflate [us]"]
 
 for dir in Dir.glob("target/criterion/**") do
   group = dir.split("/")[-1].downcase()
