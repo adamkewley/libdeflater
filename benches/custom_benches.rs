@@ -37,7 +37,7 @@ impl Flate2Encoder {
     }
 
     fn encode(&mut self, data: &[u8], out: &mut Vec<u8>) {
-        let mut e = GzEncoder::new(out, Compression::Default);
+        let mut e = GzEncoder::new(out, Compression::default());
         e.write_all(data).unwrap();
         e.finish().unwrap();
     }
@@ -51,7 +51,7 @@ impl Flate2Decoder {
     }
 
     fn decode(&mut self, gz_data: &[u8], _decomp_sz: usize, out: &mut Vec<u8>) {
-        let mut d = GzDecoder::new(gz_data).unwrap();
+        let mut d = GzDecoder::new(gz_data);
         io::copy(&mut d, out).unwrap();
     }
 }
