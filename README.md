@@ -52,40 +52,40 @@ scripts/process-bench.rb decode
 
 ```
 bench     size [KB]    speedup    flate2 [us]    libdeflate [us]
-bib       111          2.9        4880           1688
-book1     768          3.2        50504          15799
-book2     610          2.8        30624          10949
-geo       102          8.4        11169          1328
-news      377          2.7        14877          5610
-obj1      21           2.4        487            202
-obj2      246          3.7        10873          2964
-paper1    53           2.5        2015           793
-paper2    82           2.7        3997           1483
-pic       513          2.5        10310          4073
-progc     39           2.4        1261           527
-progl     71           2.7        2250           834
-progp     49           2.5        1287           521
-trans     93           2.5        2203           880
+bib       111          3.0        5117           1730
+book1     768          3.5        56648          16112
+book2     610          3.2        34431          10749
+geo       102          9.1        12301          1352
+news      377          3.1        17814          5720
+obj1      21           2.9        586            202
+obj2      246          3.9        11738          3036
+paper1    53           2.7        2181           800
+paper2    82           3.0        4452           1469
+pic       513          2.8        11343          4089
+progc     39           2.5        1321           533
+progl     71           2.8        2349           850
+progp     49           2.4        1283           524
+trans     93           2.5        2213           896
 ```
 
 ### Decompression
 
 ```
 bench     size [KB]    speedup    flate2 [us]    libdeflate [us]
-bib       111          2.3        375            162
-book1     768          2.2        2978           1355
-book2     610          2.5        2292           912
-geo       102          1.7        504            295
-news      377          2.1        1464           700
-obj1      21           1.8        86             47
-obj2      246          2.2        864            391
-paper1    53           2.2        188            84
-paper2    82           2.3        296            128
-pic       513          2.9        1036           362
-progc     39           2.2        139            63
-progl     71           2.5        195            78
-progp     49           2.5        136            55
-trans     93           2.4        226            96
+bib       111          2.3        371            165
+book1     768          2.1        2894           1385
+book2     610          2.3        2128           912
+geo       102          1.7        507            295
+news      377          2.1        1453           696
+obj1      21           1.9        85             45
+obj2      246          2.2        864            385
+paper1    53           2.1        178            85
+paper2    82           2.2        281            130
+pic       513          2.9        1023           357
+progc     39           2.0        130            64
+progl     71           2.3        182            78
+progp     49           2.2        123            56
+trans     93           2.3        216            95
 ```
 
 ### Benchmark Notes
