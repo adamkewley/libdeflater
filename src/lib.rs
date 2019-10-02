@@ -229,7 +229,7 @@ impl Decompressor {
                     Err(DecompressionError::InsufficientSpace)
                 },
                 _ => {
-                    panic!("libdeflate_zlib_decompress returned an unknown error type: this is an internal bug that **must** be fixed");
+                    panic!("libdeflate_deflate_decompress returned an unknown error type: this is an internal bug that **must** be fixed");
                 }
             }
         }
@@ -355,7 +355,7 @@ impl Compressor {
             if !ptr.is_null() {
                 Compressor{ p: ptr }
             } else {
-                panic!("libdeflate_alloc_decompressor returned NULL: out of memory");
+                panic!("libdeflate_alloc_compressor returned NULL: out of memory");
             }
         }
     }
@@ -409,8 +409,8 @@ impl Compressor {
 
     /// Compresses `in_raw_data` as
     /// [`zlib`](https://www.ietf.org/rfc/rfc1950.txt) data, writing
-    /// the data into `out_deflate_data`. Returns the number of bytes
-    /// written into `out_deflate_data`.
+    /// the data into `out_zlib_data`. Returns the number of bytes
+    /// written into `out_zlib_data`.
     pub fn compress_zlib(&mut self,
                          in_raw_data: &[u8],
                          out_zlib_data: &mut [u8]) -> CompressionResult<usize> {
@@ -445,8 +445,8 @@ impl Compressor {
 
     /// Compresses `in_raw_data` as
     /// [`gzip`](https://tools.ietf.org/html/rfc1952) data, writing
-    /// the data into `out_deflate_data`. Returns the number of bytes
-    /// written into `out_deflate_data`.
+    /// the data into `out_gzip_data`. Returns the number of bytes
+    /// written into `out_gzip_data`.
     pub fn compress_gzip(&mut self,
                          in_raw_data: &[u8],
                          out_gzip_data: &mut [u8]) -> CompressionResult<usize> {
