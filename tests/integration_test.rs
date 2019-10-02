@@ -3,7 +3,7 @@ extern crate libdeflater;
 use std::fs::File;
 use std::io::Read;
 use std::vec::Vec;
-use libdeflater::{Compressor, CompressionLvl, CompressionError, Decompressor, DecompressionError};
+use libdeflater::{Compressor, CompressionLvl, CompressionError, Decompressor, DecompressionError, CompressionLvlError};
 
 
 
@@ -328,6 +328,27 @@ fn test_calling_decompress_deflate_with_oversized_buf_returns_correct_size() {
 
 
 // compression
+
+#[test]
+fn test_compression_lvl_new_returns_err_for_zero() {
+    let ret = CompressionLvl::new(0).unwrap_err();
+
+    assert_eq!(ret, CompressionLvlError::InvalidValue);
+}
+
+#[test]
+fn test_compression_lvl_new_returns_ok_for_7() {
+    CompressionLvl::new(7).unwrap();
+}
+
+#[test]
+fn test_compression_lvl_new_returns_err_for_13() {
+    // If libdeflate changes in the future this test will need to be
+    // scrapped, but it's ok as a smoke test
+    let ret = CompressionLvl::new(13).unwrap_err();
+
+    assert_eq!(ret, CompressionLvlError::InvalidValue);
+}
 
 #[test]
 fn test_compressor_with_fastest_compression_lvl_calls_with_no_panics() {

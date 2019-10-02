@@ -249,9 +249,37 @@ impl Drop for Decompressor {
 #[derive(Copy, Clone, PartialEq, Eq, Debug)]
 pub struct CompressionLvl(i32);
 
+/// Errors that can be returned when attempting to create a
+/// [`CompressionLvl`](enum.CompressionLvl.html) from a numeric value.
+#[derive(Copy, Clone, PartialEq, Eq, Debug)]
+pub enum CompressionLvlError {
+    InvalidValue,
+}
+
+/// A result that is returned when trying to create a
+/// [`CompressionLvl`](enum.CompressionLvl.html) from a numeric value.
+type CompressionLevelResult = Result<CompressionLvl, CompressionLvlError>;
+
 impl CompressionLvl {
-    pub fn new(level: i32) -> CompressionLvl {
-        CompressionLvl(level)
+    /// Try to create a valid
+    /// [`CompressionLvl`](enum.CompressionLvl.html) from a numeric
+    /// value.
+    ///
+    /// If `level` is a valid custom compression level for libdeflate,
+    /// returns a `Result::Ok(CompressionLvl)`. Otherwise, returns
+    /// `Result::Error(error)`.
+    ///
+    /// Valid compression levels for libdeflate, at time of writing,
+    /// are 1-12.
+    pub fn new(level: i32) -> CompressionLevelResult {
+        const MIN_COMPRESSION_LVL: i32 = 1;
+        const MAX_COMPRESSION_LVL: i32 = 12;
+
+        if MIN_COMPRESSION_LVL <= level && level <= MAX_COMPRESSION_LVL {
+            Ok(CompressionLvl(level))
+        } else {
+            Err(CompressionLvlError::InvalidValue)
+        }
     }
 
     /// Returns the fastest compression level. This compression level
