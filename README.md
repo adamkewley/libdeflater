@@ -8,7 +8,7 @@ Rust bindings to [libdeflate](https://github.com/ebiggers/libdeflate).
 A high-performance library for working with gzip/zlib/deflate data.
 
 ```
-libdeflater = "0.1.2"
+libdeflater = "0.2.0"
 ```
 
 **Warning**: libdeflate is for *specialized* use-cases. You should
