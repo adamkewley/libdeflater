@@ -70,6 +70,14 @@ extern "C" {
                                     out_nbytes_avail: usize ) -> usize;
 
     pub fn libdeflate_free_compressor (compressor : * mut libdeflate_compressor);
+
+    pub fn libdeflate_crc32(crc32: u32,
+                            buffer: *const ::std::os::raw::c_void,
+                            len: usize) -> u32;
+
+    pub fn libdeflate_adler32(adler32: u32,
+                              buffer: *const ::std::os::raw::c_void,
+                              len: usize) -> u32;
 }
 
 // Basic tests for Rust-to-C bindings. These tests are just for quick
@@ -125,6 +133,34 @@ mod tests {
                                                  out_data.len());
             assert_ne!(sz, 0);
             assert!(sz < 100);
+        }
+    }
+
+    #[test]
+    fn can_call_crc32() {
+        let init = 0;
+        let buf: [u8; 4] = [0x31, 0x33, 0x33, 0x37];
+
+        unsafe {
+            let ret = libdeflate_crc32(init,
+                                       buf.as_ptr() as *const core::ffi::c_void,
+                                       buf.len());
+
+            assert_ne!(ret, init);
+        }
+    }
+
+    #[test]
+    fn can_call_adler32() {
+        let init = 0;
+        let buf: [u8; 4] = [0x31, 0x33, 0x33, 0x37];
+
+        unsafe {
+            let ret = libdeflate_adler32(init,
+                                         buf.as_ptr() as *const core::ffi::c_void,
+                                         buf.len());
+
+            assert_ne!(ret, init);
         }
     }
 }

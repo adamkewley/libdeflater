@@ -81,7 +81,8 @@ use crate::libdeflate_sys::{libdeflate_decompressor,
                             libdeflate_zlib_compress,
                             libdeflate_gzip_compress_bound,
                             libdeflate_gzip_compress,
-                            libdeflate_free_compressor};
+                            libdeflate_free_compressor,
+                            libdeflate_crc32};
 
 /// A `libdeflate` decompressor that can inflate DEFLATE, zlib, or
 /// gzip data.
@@ -475,4 +476,42 @@ impl Drop for Compressor {
             libdeflate_free_compressor(self.p);
         }
     }
+}
+
+/// Struct holding the state required to compute a rolling crc32
+/// value.
+pub struct Crc {
+    val: u32,
+}
+
+impl Crc {
+    /// Returns a new `Crc` instance
+    pub fn new() -> Crc {
+        Crc { val: 0 }
+    }
+
+    /// Update the CRC with the bytes in `data`
+    pub fn update(&mut self, data: &[u8]) {
+        unsafe {
+            self.val = libdeflate_crc32(self.val,
+                                        data.as_ptr() as *const core::ffi::c_void,
+                                        data.len());
+        }
+    }
+
+    /// Returns the current CRC32 checksum
+    pub fn sum(&self) -> u32 {
+        self.val
+    }
+}
+
+/// Returns the CRC32 checksum of the bytes in `data`.
+///
+/// Note: this is a one-shot method that requires all data
+/// up-front. Developers wanting to compute a rolling crc32 from
+/// (e.g.) a stream should use [`Crc`](struct.Crc.html)
+pub fn crc32(data: &[u8]) -> u32 {
+    let mut crc = Crc::new();
+    crc.update(&data);
+    crc.sum()
 }

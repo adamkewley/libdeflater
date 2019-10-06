@@ -4,6 +4,7 @@ use std::fs::File;
 use std::io::Read;
 use std::vec::Vec;
 use libdeflater::{Compressor, CompressionLvl, CompressionError, Decompressor, DecompressionError, CompressionLvlError};
+use flate2;
 
 
 
@@ -666,4 +667,47 @@ fn test_compress_gzip_then_decompress_gzip_works_and_produces_the_same_input_dat
     };
 
     assert_eq!(input_data, decompressed_buf);
+}
+
+
+// crc32
+
+#[test]
+fn test_use_crc32_reader_to_compute_crc32_of_fixture_returns_same_crc32_as_flate2() {
+    // This assumes that flate2's crc32 implementation returns a
+    // correct value, which is a pretty safe assumption.
+
+    let input_data = read_fixture_content();
+
+    let flate2_crc32 = {
+        let mut crc = flate2::Crc::new();
+        crc.update(&input_data);
+        crc.sum()
+    };
+
+    let libdeflate_crc32 = {
+        let mut crc = libdeflater::Crc::new();
+        crc.update(&input_data);
+        crc.sum()
+    };
+
+    assert_eq!(flate2_crc32, libdeflate_crc32);
+}
+
+#[test]
+fn test_use_crc32_convenience_method_returns_same_crc32_as_flate2() {
+    // This assumes that flate2's crc32 implementation returns a
+    // correct value, which is a pretty safe assumption.
+
+    let input_data = read_fixture_content();
+
+    let flate2_crc32 = {
+        let mut crc = flate2::Crc::new();
+        crc.update(&input_data);
+        crc.sum()
+    };
+
+    let libdeflate_crc32 = libdeflater::crc32(&input_data);
+
+    assert_eq!(flate2_crc32, libdeflate_crc32);
 }
