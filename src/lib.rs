@@ -17,9 +17,9 @@
 //! [`Decompressor::new`] can be used to construct a [`Decompressor`],
 //! which can decompress:
 //!
-//! - DEFLATE data ([`decompress_deflate`])
-//! - zlib data ([`decompress_zlib`])
-//! - gzip data ([`decompress_gzip`])
+//! - DEFLATE data ([`deflate_decompress`])
+//! - zlib data ([`zlib_decompress`])
+//! - gzip data ([`gzip_decompress`])
 //!
 //! **Note**: `libdeflate` requires that the input *and* output
 //! buffers are pre-allocated before decompressing. Because of this,
@@ -29,9 +29,9 @@
 //!
 //! [`Decompressor::new`]: struct.Decompressor.html#method.new
 //! [`Decompressor`]: struct.Decompressor.html
-//! [`decompress_deflate`]: struct.Decompressor.html#method.decompress_deflate
-//! [`decompress_zlib`]: struct.Decompressor.html#method.decompress_zlib
-//! [`decompress_gzip`]: struct.Decompressor.html#method.decompress_gzip
+//! [`deflate_decompress`]: struct.Decompressor.html#method.deflate_decompress
+//! [`zlib_decompress`]: struct.Decompressor.html#method.zlib_decompress
+//! [`gzip_decompress`]: struct.Decompressor.html#method.gzip_decompress
 //! [`DecompressionError::InsufficientSpace`]: enum.DecompressionError.html
 //!
 //! # Compression
@@ -129,7 +129,7 @@ impl Decompressor {
     /// decompressed bytes written into `out`, or an error (see
     /// [`DecompressionError`](enum.DecompressionError.html) for error
     /// cases).
-    pub fn decompress_gzip(&mut self,
+    pub fn gzip_decompress(&mut self,
                            gz_data: &[u8],
                            out: &mut [u8]) -> DecompressionResult<usize> {
         unsafe {
@@ -166,7 +166,7 @@ impl Decompressor {
     /// decompressed bytes written into `out`, or an error (see
     /// [`DecompressionError`](enum.DecompressionError.html) for error
     /// cases).
-    pub fn decompress_zlib(&mut self,
+    pub fn zlib_decompress(&mut self,
                            zlib_data: &[u8],
                            out: &mut [u8]) -> DecompressionResult<usize> {
         unsafe {
@@ -204,7 +204,7 @@ impl Decompressor {
     /// decompressed bytes written into `out`, or an error (see
     /// [`DecompressionError`](enum.DecompressionError.html) for error
     /// cases).
-    pub fn decompress_deflate(&mut self,
+    pub fn deflate_decompress(&mut self,
                               deflate_data: &[u8],
                               out: &mut [u8]) -> DecompressionResult<usize> {
         unsafe {

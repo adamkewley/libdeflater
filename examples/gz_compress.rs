@@ -12,7 +12,7 @@ fn main() {
         let max_sz = compressor.compress_gzip_bound(str_bytes.len());
         let mut compressed_data = Vec::new();
         compressed_data.resize(max_sz, 0);
-        let actual_sz = compressor.compress_gzip(&str_bytes, &mut compressed_data).unwrap();
+        let actual_sz = compressor.gzip_compress(&str_bytes, &mut compressed_data).unwrap();
         compressed_data.resize(actual_sz, 0);
         compressed_data
     };

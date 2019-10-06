@@ -38,7 +38,7 @@ fn main() {
         let mut decompressor = Decompressor::new();
         let mut outbuf = Vec::new();
         outbuf.resize(isize, 0);
-        decompressor.decompress_gzip(&gz_data, &mut outbuf).unwrap();
+        decompressor.gzip_decompress(&gz_data, &mut outbuf).unwrap();
         outbuf
     };
 

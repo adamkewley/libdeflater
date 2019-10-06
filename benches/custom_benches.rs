@@ -98,7 +98,7 @@ impl LibdeflateDecoder {
         // under the hood
         unsafe {
             out.set_len(decomp_sz);
-            let sz = self.st.decompress_zlib(zlib_data, out).unwrap();
+            let sz = self.st.zlib_decompress(zlib_data, out).unwrap();
             out.set_len(sz);
         }
     }

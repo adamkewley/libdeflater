@@ -96,35 +96,35 @@ fn read_fixture_deflate() -> Vec<u8> {
 // gz decompression
 
 #[test]
-fn test_calling_decompress_gzip_with_valid_args_works() {
+fn test_calling_gzip_decompress_with_valid_args_works() {
     let mut decompressor = Decompressor::new();
     let content = read_fixture_gz();
     let mut decompressed = Vec::new();
     decompressed.resize(fixture_content_size(), 0);
 
-    decompressor.decompress_gzip(&content, &mut decompressed).unwrap();
+    decompressor.gzip_decompress(&content, &mut decompressed).unwrap();
 }
 
 #[test]
-fn test_calling_decompress_gzip_with_undersized_outbuf_returns_insufficient_space() {
+fn test_calling_gzip_decompress_with_undersized_outbuf_returns_insufficient_space() {
     let result = {
         let mut decompressor = Decompressor::new();
         let content = read_fixture_gz();
         let mut decompressed = Vec::new();
-        decompressor.decompress_gzip(&content, &mut decompressed)
+        decompressor.gzip_decompress(&content, &mut decompressed)
     };
 
     assert_eq!(result.unwrap_err(), DecompressionError::InsufficientSpace);
 }
 
 #[test]
-fn test_calling_decompress_gzip_with_valid_buf_fills_buf_with_expected_content() {
+fn test_calling_gzip_decompress_with_valid_buf_fills_buf_with_expected_content() {
     let decompressed = {
         let mut decompressor = Decompressor::new();
         let content = read_fixture_gz();
         let mut decompressed = Vec::new();
         decompressed.resize(fixture_content_size(), 0);
-        decompressor.decompress_gzip(&content, &mut decompressed).unwrap();
+        decompressor.gzip_decompress(&content, &mut decompressed).unwrap();
         decompressed
     };
 
@@ -134,7 +134,7 @@ fn test_calling_decompress_gzip_with_valid_buf_fills_buf_with_expected_content()
 }
 
 #[test]
-fn test_calling_decompress_gzip_with_oversized_buf_returns_correct_size() {
+fn test_calling_gzip_decompress_with_oversized_buf_returns_correct_size() {
     const OVERSIZED_FACTOR: usize = 2;
 
     let sz = {
@@ -142,7 +142,7 @@ fn test_calling_decompress_gzip_with_oversized_buf_returns_correct_size() {
         let content = read_fixture_gz();
         let mut decompressed = Vec::new();
         decompressed.resize(OVERSIZED_FACTOR*fixture_content_size(), 0);
-        let sz = decompressor.decompress_gzip(&content, &mut decompressed).unwrap();
+        let sz = decompressor.gzip_decompress(&content, &mut decompressed).unwrap();
         sz
     };
 
@@ -150,34 +150,34 @@ fn test_calling_decompress_gzip_with_oversized_buf_returns_correct_size() {
 }
 
 #[test]
-fn test_calling_decompress_gzip_with_bad_magic_num_returns_bad_data() {
+fn test_calling_gzip_decompress_with_bad_magic_num_returns_bad_data() {
     let mut decompressor = Decompressor::new();
     let content = read_fixture_gz_with_bad_magic_num();
     let mut decompressed = Vec::new();
     decompressed.resize(fixture_content_size(), 0);
-    let result = decompressor.decompress_gzip(&content, &mut decompressed);
+    let result = decompressor.gzip_decompress(&content, &mut decompressed);
 
     assert_eq!(result.unwrap_err(), DecompressionError::BadData);
 }
 
 #[test]
-fn test_calling_decompress_gzip_with_corrupted_crc32_returns_bad_data() {
+fn test_calling_gzip_decompress_with_corrupted_crc32_returns_bad_data() {
     let mut decompressor = Decompressor::new();
     let content = read_fixture_gz_with_bad_crc32();
     let mut decompressed = Vec::new();
     decompressed.resize(fixture_content_size(), 0);
-    let result = decompressor.decompress_gzip(&content, &mut decompressed);
+    let result = decompressor.gzip_decompress(&content, &mut decompressed);
 
     assert_eq!(result.unwrap_err(), DecompressionError::BadData);
 }
 
 #[test]
-fn test_calling_decompress_gzip_with_corrupted_isize_returns_bad_data() {
+fn test_calling_gzip_decompress_with_corrupted_isize_returns_bad_data() {
     let mut decompressor = Decompressor::new();
     let content = read_fixture_gz_with_bad_isize();
     let mut decompressed = Vec::new();
     decompressed.resize(fixture_content_size(), 0);
-    let result = decompressor.decompress_gzip(&content, &mut decompressed);
+    let result = decompressor.gzip_decompress(&content, &mut decompressed);
 
     assert_eq!(result.unwrap_err(), DecompressionError::BadData);
 }
@@ -186,36 +186,36 @@ fn test_calling_decompress_gzip_with_corrupted_isize_returns_bad_data() {
 // zlib decompression
 
 #[test]
-fn test_calling_decompress_zlib_with_valid_args_works() {
+fn test_calling_zlib_decompress_with_valid_args_works() {
     let mut decompressor = Decompressor::new();
     let content = read_fixture_zlib();
     let mut decompressed = Vec::new();
     decompressed.resize(fixture_content_size(), 0);
 
-    decompressor.decompress_zlib(&content, &mut decompressed).unwrap();
+    decompressor.zlib_decompress(&content, &mut decompressed).unwrap();
 }
 
 #[test]
-fn test_calling_decompress_zlib_with_undersized_outbuf_returns_insufficient_space() {
+fn test_calling_zlib_decompress_with_undersized_outbuf_returns_insufficient_space() {
     let result = {
         let mut decompressor = Decompressor::new();
         let content = read_fixture_zlib();
         let mut decompressed = Vec::with_capacity(0);
 
-        decompressor.decompress_zlib(&content, &mut decompressed)
+        decompressor.zlib_decompress(&content, &mut decompressed)
     };
 
     assert_eq!(result.unwrap_err(), DecompressionError::InsufficientSpace);
 }
 
 #[test]
-fn test_calling_decompress_zlib_with_valid_buf_fills_buf_with_expected_content() {
+fn test_calling_zlib_decompress_with_valid_buf_fills_buf_with_expected_content() {
     let decompressed_content = {
         let mut decompressor = Decompressor::new();
         let content = read_fixture_zlib();
         let mut decompressed = Vec::new();
         decompressed.resize(fixture_content_size(), 0);
-        decompressor.decompress_zlib(&content, &mut decompressed).unwrap();
+        decompressor.zlib_decompress(&content, &mut decompressed).unwrap();
         decompressed
     };
 
@@ -225,7 +225,7 @@ fn test_calling_decompress_zlib_with_valid_buf_fills_buf_with_expected_content()
 }
 
 #[test]
-fn test_calling_decompress_zlib_with_oversized_buf_returns_correct_size() {
+fn test_calling_zlib_decompress_with_oversized_buf_returns_correct_size() {
     const OVERSIZED_FACTOR: usize = 2;
 
     let sz = {
@@ -233,7 +233,7 @@ fn test_calling_decompress_zlib_with_oversized_buf_returns_correct_size() {
         let content = read_fixture_zlib();
         let mut decompressed = Vec::new();
         decompressed.resize(OVERSIZED_FACTOR*fixture_content_size(), 0);
-        let sz = decompressor.decompress_zlib(&content, &mut decompressed).unwrap();
+        let sz = decompressor.zlib_decompress(&content, &mut decompressed).unwrap();
         sz
     };
 
@@ -241,28 +241,28 @@ fn test_calling_decompress_zlib_with_oversized_buf_returns_correct_size() {
 }
 
 #[test]
-fn test_calling_decompress_zlib_with_bad_cmf_field_returns_bad_data() {
+fn test_calling_zlib_decompress_with_bad_cmf_field_returns_bad_data() {
     let ret = {
         let mut decompressor = Decompressor::new();
         let content = read_fixture_zlib_with_bad_cmf_field();
         let mut decompressed = Vec::new();
         decompressed.resize(fixture_content_size(), 0);
 
-        decompressor.decompress_zlib(&content, &mut decompressed)
+        decompressor.zlib_decompress(&content, &mut decompressed)
     };
 
     assert_eq!(ret.unwrap_err(), DecompressionError::BadData);
 }
 
 #[test]
-fn test_calling_decompress_zlib_with_bad_adler32_checksum_returns_bad_data() {
+fn test_calling_zlib_decompress_with_bad_adler32_checksum_returns_bad_data() {
     let ret = {
         let mut decompressor = Decompressor::new();
         let content = read_fixture_zlib_with_bad_adler32_checksum();
         let mut decompressed = Vec::new();
         decompressed.resize(fixture_content_size(), 0);
 
-        decompressor.decompress_zlib(&content, &mut decompressed)
+        decompressor.zlib_decompress(&content, &mut decompressed)
     };
 
     assert_eq!(ret.unwrap_err(), DecompressionError::BadData);
@@ -272,36 +272,36 @@ fn test_calling_decompress_zlib_with_bad_adler32_checksum_returns_bad_data() {
 // DEFLATE decompression
 
 #[test]
-fn test_calling_decompress_deflate_with_valid_args_works() {
+fn test_calling_deflate_decompress_with_valid_args_works() {
     let mut decompressor = Decompressor::new();
     let content = read_fixture_deflate();
     let mut decompressed = Vec::new();
     decompressed.resize(fixture_content_size(), 0);
 
-    decompressor.decompress_deflate(&content, &mut decompressed).unwrap();
+    decompressor.deflate_decompress(&content, &mut decompressed).unwrap();
 }
 
 #[test]
-fn test_calling_decompress_deflate_with_undersized_outbuf_returns_insufficient_space() {
+fn test_calling_deflate_decompress_with_undersized_outbuf_returns_insufficient_space() {
     let result = {
         let mut decompressor = Decompressor::new();
         let content = read_fixture_deflate();
         let mut decompressed = Vec::with_capacity(0);
 
-        decompressor.decompress_deflate(&content, &mut decompressed)
+        decompressor.deflate_decompress(&content, &mut decompressed)
     };
 
     assert_eq!(result.unwrap_err(), DecompressionError::InsufficientSpace);
 }
 
 #[test]
-fn test_calling_decompress_deflate_with_valid_buf_fills_buf_with_expected_content() {
+fn test_calling_deflate_decompress_with_valid_buf_fills_buf_with_expected_content() {
     let decompressed_content = {
         let mut decompressor = Decompressor::new();
         let content = read_fixture_deflate();
         let mut decompressed = Vec::new();
         decompressed.resize(fixture_content_size(), 0);
-        decompressor.decompress_deflate(&content, &mut decompressed).unwrap();
+        decompressor.deflate_decompress(&content, &mut decompressed).unwrap();
         decompressed
     };
 
@@ -311,7 +311,7 @@ fn test_calling_decompress_deflate_with_valid_buf_fills_buf_with_expected_conten
 }
 
 #[test]
-fn test_calling_decompress_deflate_with_oversized_buf_returns_correct_size() {
+fn test_calling_deflate_decompress_with_oversized_buf_returns_correct_size() {
     const OVERSIZED_FACTOR: usize = 2;
 
     let sz = {
@@ -319,7 +319,7 @@ fn test_calling_decompress_deflate_with_oversized_buf_returns_correct_size() {
         let content = read_fixture_deflate();
         let mut decompressed = Vec::new();
         decompressed.resize(OVERSIZED_FACTOR*fixture_content_size(), 0);
-        let sz = decompressor.decompress_deflate(&content, &mut decompressed).unwrap();
+        let sz = decompressor.deflate_decompress(&content, &mut decompressed).unwrap();
         sz
     };
 
@@ -589,7 +589,7 @@ fn test_compressor_compress_gzip_with_correct_args_resized_outbuf_to_return_val_
 // compress + decompress (full-cycle tests)
 
 #[test]
-fn test_compress_zlib_then_decompress_zlib_works_and_produces_the_same_input_data() {
+fn test_compress_zlib_then_zlib_decompress_works_and_produces_the_same_input_data() {
     let input_data = read_fixture_content();
     
     let compression_buf = {
@@ -606,7 +606,7 @@ fn test_compress_zlib_then_decompress_zlib_works_and_produces_the_same_input_dat
         let mut decompressor = Decompressor::new();
         let mut decompressed_buf = Vec::new();
         decompressed_buf.resize(input_data.len(), 0);
-        let decompressed_sz = decompressor.decompress_zlib(&compression_buf, &mut decompressed_buf).unwrap();
+        let decompressed_sz = decompressor.zlib_decompress(&compression_buf, &mut decompressed_buf).unwrap();
 
         assert_eq!(decompressed_sz, input_data.len());
         decompressed_buf
@@ -616,7 +616,7 @@ fn test_compress_zlib_then_decompress_zlib_works_and_produces_the_same_input_dat
 }
 
 #[test]
-fn test_compress_deflate_then_decompress_deflate_works_and_produces_the_same_input_data() {
+fn test_compress_deflate_then_deflate_decompress_works_and_produces_the_same_input_data() {
     let input_data = read_fixture_content();
     
     let compression_buf = {
@@ -633,7 +633,7 @@ fn test_compress_deflate_then_decompress_deflate_works_and_produces_the_same_inp
         let mut decompressor = Decompressor::new();
         let mut decompressed_buf = Vec::new();
         decompressed_buf.resize(input_data.len(), 0);
-        let decompressed_sz = decompressor.decompress_deflate(&compression_buf, &mut decompressed_buf).unwrap();
+        let decompressed_sz = decompressor.deflate_decompress(&compression_buf, &mut decompressed_buf).unwrap();
 
         assert_eq!(decompressed_sz, input_data.len());
         decompressed_buf
@@ -643,7 +643,7 @@ fn test_compress_deflate_then_decompress_deflate_works_and_produces_the_same_inp
 }
 
 #[test]
-fn test_compress_gzip_then_decompress_gzip_works_and_produces_the_same_input_data() {
+fn test_compress_gzip_then_gzip_decompress_works_and_produces_the_same_input_data() {
     let input_data = read_fixture_content();
     
     let compression_buf = {
@@ -660,7 +660,7 @@ fn test_compress_gzip_then_decompress_gzip_works_and_produces_the_same_input_dat
         let mut decompressor = Decompressor::new();
         let mut decompressed_buf = Vec::new();
         decompressed_buf.resize(input_data.len(), 0);
-        let decompressed_sz = decompressor.decompress_gzip(&compression_buf, &mut decompressed_buf).unwrap();
+        let decompressed_sz = decompressor.gzip_decompress(&compression_buf, &mut decompressed_buf).unwrap();
 
         assert_eq!(decompressed_sz, input_data.len());
         decompressed_buf
