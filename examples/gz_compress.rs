@@ -9,7 +9,7 @@ fn main() {
 
     let compressed_data = {
         let mut compressor = Compressor::new(CompressionLvl::default());
-        let max_sz = compressor.compress_gzip_bound(str_bytes.len());
+        let max_sz = compressor.gzip_compress_bound(str_bytes.len());
         let mut compressed_data = Vec::new();
         compressed_data.resize(max_sz, 0);
         let actual_sz = compressor.gzip_compress(&str_bytes, &mut compressed_data).unwrap();

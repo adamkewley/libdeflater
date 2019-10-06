@@ -39,27 +39,27 @@
 //! `Compressor::new` can be used to construct a [`Compressor`], which
 //! can compress data into the following formats:
 //!
-//! - DEFLATE ([`compress_deflate`])
-//! - zlib ([`compress_zlib`])
-//! - gzip ([`compress_gzip`])
+//! - DEFLATE ([`deflate_compress`])
+//! - zlib ([`zlib_compress`])
+//! - gzip ([`gzip_compress`])
 //!
 //! Because buffers must be allocated up-front, developers need to
 //! supply these functions with output buffers that are big enough to
 //! fit the compressed data. The maximum size of the compressed data
 //! can be found with the associated `*_bound` methods:
 //!
-//! - [`compress_deflate_bound`]
-//! - [`compress_zlib_bound`]
-//! - [`compress_gzip_bound`]
+//! - [`deflate_compress_bound`]
+//! - [`zlib_compress_bound`]
+//! - [`gzip_compress_bound`]
 //!
 //! [`Compressor::new`]: struct.Compressor.html#method.new
 //! [`Compressor`]: struct.Compressor.html
-//! [`compress_deflate`]: struct.Compressor.html#method.compress_deflate
-//! [`compress_zlib`]: struct.Compressor.html#method.compress_zlib
-//! [`compress_gzip`]: struct.Compressor.html#method.compress_gzip
-//! [`compress_deflate_bound`]: struct.Compressor.html#method.compress_deflate_bound
-//! [`compress_zlib_bound`]: struct.Compressor.html#method.compress_zlib_bound
-//! [`compress_gzip_bound`]: struct.Compressor.html#method.compress_gzip_bound
+//! [`deflate_compress`]: struct.Compressor.html#method.deflate_compress
+//! [`zlib_compress`]: struct.Compressor.html#method.zlib_compress
+//! [`gzip_compress`]: struct.Compressor.html#method.gzip_compress
+//! [`deflate_compress_bound`]: struct.Compressor.html#method.deflate_compress_bound
+//! [`zlib_compress_bound`]: struct.Compressor.html#method.zlib_compress_bound
+//! [`gzip_compress_bound`]: struct.Compressor.html#method.gzip_compress_bound
 
 mod libdeflate_sys;
 
@@ -366,7 +366,7 @@ impl Compressor {
     /// data. This is a hard upper-bound that assumes the worst
     /// possible compression ratio (i.e. assumes the data cannot be
     /// compressed), format overhead, etc.
-    pub fn compress_deflate_bound(&mut self, n_bytes: usize) -> usize {
+    pub fn deflate_compress_bound(&mut self, n_bytes: usize) -> usize {
         unsafe {
             libdeflate_deflate_compress_bound(self.p, n_bytes)
         }
@@ -376,7 +376,7 @@ impl Compressor {
     /// [`deflate`](https://tools.ietf.org/html/rfc1951) data, writing
     /// the data into `out_deflate_data`. Returns the number of bytes
     /// written into `out_deflate_data`.
-    pub fn compress_deflate(&mut self,
+    pub fn deflate_compress(&mut self,
                             in_raw_data: &[u8],
                             out_deflate_data: &mut [u8]) -> CompressionResult<usize> {
         unsafe {
@@ -402,7 +402,7 @@ impl Compressor {
     /// data. This is a hard upper-bound that assumes the worst
     /// possible compression ratio (i.e. assumes the data cannot be
     /// compressed), format overhead, etc.
-    pub fn compress_zlib_bound(&mut self, n_bytes: usize) -> usize {
+    pub fn zlib_compress_bound(&mut self, n_bytes: usize) -> usize {
         unsafe {
             libdeflate_zlib_compress_bound(self.p, n_bytes)
         }
@@ -412,7 +412,7 @@ impl Compressor {
     /// [`zlib`](https://www.ietf.org/rfc/rfc1950.txt) data, writing
     /// the data into `out_zlib_data`. Returns the number of bytes
     /// written into `out_zlib_data`.
-    pub fn compress_zlib(&mut self,
+    pub fn zlib_compress(&mut self,
                          in_raw_data: &[u8],
                          out_zlib_data: &mut [u8]) -> CompressionResult<usize> {
         unsafe {
@@ -438,7 +438,7 @@ impl Compressor {
     /// data. This is a hard upper-bound that assumes the worst
     /// possible compression ratio (i.e. assumes the data cannot be
     /// compressed), format overhead, etc.
-    pub fn compress_gzip_bound(&mut self, n_bytes: usize) -> usize {
+    pub fn gzip_compress_bound(&mut self, n_bytes: usize) -> usize {
         unsafe {
             libdeflate_gzip_compress_bound(self.p, n_bytes)
         }
@@ -448,7 +448,7 @@ impl Compressor {
     /// [`gzip`](https://tools.ietf.org/html/rfc1952) data, writing
     /// the data into `out_gzip_data`. Returns the number of bytes
     /// written into `out_gzip_data`.
-    pub fn compress_gzip(&mut self,
+    pub fn gzip_compress(&mut self,
                          in_raw_data: &[u8],
                          out_gzip_data: &mut [u8]) -> CompressionResult<usize> {
         unsafe {

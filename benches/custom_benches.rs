@@ -74,8 +74,8 @@ impl LibdeflateEncoder {
         // because it essentially does exactly the same thing under
         // the hood
         unsafe {
-            out.set_len(self.compressor.compress_zlib_bound(data.len()));
-            let actual = self.compressor.compress_zlib(data, out).unwrap();
+            out.set_len(self.compressor.zlib_compress_bound(data.len()));
+            let actual = self.compressor.zlib_compress(data, out).unwrap();
             out.set_len(actual);
         }
     }
