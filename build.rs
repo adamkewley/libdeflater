@@ -24,7 +24,7 @@ fn main() {
         .include("libdeflate/common/")
         .warnings(false)
         .out_dir(dst.join("lib"))
-        .compile("libdeflate");
+        .compile("libdeflate.a");
 
         let src = env::current_dir().unwrap().join("libdeflate");
         let include = dst.join("include");
