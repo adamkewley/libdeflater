@@ -2,6 +2,7 @@
 name = "libdeflater"
 version = "0.2.0"
 authors = ["Adam Kewley <contact@adamkewley.com>"]
+links = "libdeflate"
 edition = "2018"
 license = "Apache-2.0"
 readme = "README.md"

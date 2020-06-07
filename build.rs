@@ -1,6 +1,12 @@
 extern crate cc;
+use std::env;
+use std::path::PathBuf;
+use std::fs;
 
 fn main() {
+
+    let dst = PathBuf::from(env::var_os("OUT_DIR").unwrap());
+
     cc::Build::new()
         .file("libdeflate/lib/aligned_malloc.c")
         .file("libdeflate/lib/deflate_decompress.c")
@@ -17,5 +23,13 @@ fn main() {
         .include("libdeflate/lib/")
         .include("libdeflate/common/")
         .warnings(false)
+        .out_dir(dst.join("lib"))
         .compile("libdeflate");
+
+        let src = env::current_dir().unwrap().join("libdeflate");
+        let include = dst.join("include");
+        fs::create_dir_all(&include).unwrap();
+        fs::copy(src.join("libdeflate.h"), dst.join("include/libdeflate.h")).unwrap();
+        println!("cargo:root={}", dst.display());
+        println!("cargo:include={}", dst.join("include").display());
 }
