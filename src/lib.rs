@@ -84,6 +84,8 @@ use crate::libdeflate_sys::{libdeflate_decompressor,
                             libdeflate_free_compressor,
                             libdeflate_crc32};
 
+use std::mem::{MaybeUninit};
+
 /// A `libdeflate` decompressor that can inflate DEFLATE, zlib, or
 /// gzip data.
 pub struct Decompressor {
@@ -108,6 +110,18 @@ pub enum DecompressionError {
 /// A result returned by decompression methods
 type DecompressionResult<T> = std::result::Result<T, DecompressionError>;
 
+/// Assuming all the elements are initialized, get a slice to them.
+/// TODO: This is copied from rust nightly API
+///
+/// # Safety
+///
+/// It is up to the caller to guarantee that the `MaybeUninit<T>` elements
+/// really are in an initialized state.
+/// Calling this when the content is not yet fully initialized causes undefined behavior.
+unsafe fn slice_get_ref(slice: &[MaybeUninit<u8>]) -> &[u8] {
+    &*(slice as *const [MaybeUninit<u8>] as *const [u8])
+}
+
 #[allow(non_upper_case_globals)]
 impl Decompressor {
 
@@ -129,9 +143,9 @@ impl Decompressor {
     /// decompressed bytes written into `out`, or an error (see
     /// [`DecompressionError`](enum.DecompressionError.html) for error
     /// cases).
-    pub fn gzip_decompress(&mut self,
+    pub fn gzip_decompress<'a>(&mut self,
                            gz_data: &[u8],
-                           out: &mut [u8]) -> DecompressionResult<usize> {
+                           out: &'a mut [MaybeUninit<u8>]) -> DecompressionResult<&'a [u8]> {
         unsafe {
             let mut out_nbytes = 0;
             let in_ptr = gz_data.as_ptr() as *const std::ffi::c_void;
@@ -145,7 +159,7 @@ impl Decompressor {
                                            &mut out_nbytes);
             match ret {
                 libdeflate_result_LIBDEFLATE_SUCCESS => {
-                    Ok(out_nbytes)
+                    Ok(slice_get_ref(&out[..out_nbytes]))
                 },
                 libdeflate_result_LIBDEFLATE_BAD_DATA => {
                     Err(DecompressionError::BadData)
@@ -166,9 +180,9 @@ impl Decompressor {
     /// decompressed bytes written into `out`, or an error (see
     /// [`DecompressionError`](enum.DecompressionError.html) for error
     /// cases).
-    pub fn zlib_decompress(&mut self,
+    pub fn zlib_decompress<'a>(&mut self,
                            zlib_data: &[u8],
-                           out: &mut [u8]) -> DecompressionResult<usize> {
+                           out: &'a mut [MaybeUninit<u8>]) -> DecompressionResult<&'a [u8]> {
         unsafe {
             let mut out_nbytes = 0;
             let in_ptr = zlib_data.as_ptr() as *const std::ffi::c_void;
@@ -183,7 +197,7 @@ impl Decompressor {
 
             match ret {
                 libdeflate_result_LIBDEFLATE_SUCCESS => {
-                    Ok(out_nbytes)
+                    Ok(slice_get_ref(&out[..out_nbytes]))
                 },
                 libdeflate_result_LIBDEFLATE_BAD_DATA => {
                     Err(DecompressionError::BadData)
@@ -204,9 +218,9 @@ impl Decompressor {
     /// decompressed bytes written into `out`, or an error (see
     /// [`DecompressionError`](enum.DecompressionError.html) for error
     /// cases).
-    pub fn deflate_decompress(&mut self,
+    pub fn deflate_decompress<'a>(&mut self,
                               deflate_data: &[u8],
-                              out: &mut [u8]) -> DecompressionResult<usize> {
+                              out: &'a mut [MaybeUninit<u8>]) -> DecompressionResult<&'a [u8]> {
         unsafe {
             let mut out_nbytes = 0;
             let in_ptr = deflate_data.as_ptr() as *const std::ffi::c_void;
@@ -221,7 +235,7 @@ impl Decompressor {
 
             match ret {
                 libdeflate_result_LIBDEFLATE_SUCCESS => {
-                    Ok(out_nbytes)
+                    Ok(slice_get_ref(&out[..out_nbytes]))
                 },
                 libdeflate_result_LIBDEFLATE_BAD_DATA => {
                     Err(DecompressionError::BadData)
@@ -376,9 +390,9 @@ impl Compressor {
     /// [`deflate`](https://tools.ietf.org/html/rfc1951) data, writing
     /// the data into `out_deflate_data`. Returns the number of bytes
     /// written into `out_deflate_data`.
-    pub fn deflate_compress(&mut self,
+    pub fn deflate_compress<'a>(&mut self,
                             in_raw_data: &[u8],
-                            out_deflate_data: &mut [u8]) -> CompressionResult<usize> {
+                            out_deflate_data: &'a mut [MaybeUninit<u8>]) -> CompressionResult<&'a [u8]> {
         unsafe {
             let in_ptr = in_raw_data.as_ptr() as *const std::ffi::c_void;
             let out_ptr = out_deflate_data.as_mut_ptr() as *mut std::ffi::c_void;
@@ -390,7 +404,7 @@ impl Compressor {
                                                  out_deflate_data.len());
 
             if sz != 0 {
-                Ok(sz)
+                Ok(slice_get_ref(&out_deflate_data[..sz]))
             } else {
                 Err(CompressionError::InsufficientSpace)
             }
@@ -412,9 +426,9 @@ impl Compressor {
     /// [`zlib`](https://www.ietf.org/rfc/rfc1950.txt) data, writing
     /// the data into `out_zlib_data`. Returns the number of bytes
     /// written into `out_zlib_data`.
-    pub fn zlib_compress(&mut self,
+    pub fn zlib_compress<'a>(&mut self,
                          in_raw_data: &[u8],
-                         out_zlib_data: &mut [u8]) -> CompressionResult<usize> {
+                         out_zlib_data: &'a mut [MaybeUninit<u8>]) -> CompressionResult<&'a [u8]> {
         unsafe {
             let in_ptr = in_raw_data.as_ptr() as *const std::ffi::c_void;
             let out_ptr = out_zlib_data.as_mut_ptr() as *mut std::ffi::c_void;
@@ -426,7 +440,7 @@ impl Compressor {
                                               out_zlib_data.len());
 
             if sz != 0 {
-                Ok(sz)
+                Ok(slice_get_ref(&out_zlib_data[..sz]))
             } else {
                 Err(CompressionError::InsufficientSpace)
             }
@@ -448,9 +462,9 @@ impl Compressor {
     /// [`gzip`](https://tools.ietf.org/html/rfc1952) data, writing
     /// the data into `out_gzip_data`. Returns the number of bytes
     /// written into `out_gzip_data`.
-    pub fn gzip_compress(&mut self,
+    pub fn gzip_compress<'a>(&mut self,
                          in_raw_data: &[u8],
-                         out_gzip_data: &mut [u8]) -> CompressionResult<usize> {
+                         out_gzip_data: &'a mut [MaybeUninit<u8>]) -> CompressionResult<&'a [u8]> {
         unsafe {
             let in_ptr = in_raw_data.as_ptr() as *const std::ffi::c_void;
             let out_ptr = out_gzip_data.as_mut_ptr() as *mut std::ffi::c_void;
@@ -462,7 +476,7 @@ impl Compressor {
                                               out_gzip_data.len());
 
             if sz != 0 {
-                Ok(sz)
+                Ok(slice_get_ref(&out_gzip_data[..sz]))
             } else {
                 Err(CompressionError::InsufficientSpace)
             }

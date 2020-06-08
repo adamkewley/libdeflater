@@ -1,6 +1,7 @@
 extern crate libdeflater;
 
 use std::vec::Vec;
+use std::mem::MaybeUninit;
 use libdeflater::{Compressor, CompressionLvl};
 
 fn main() {
@@ -12,8 +13,8 @@ fn main() {
         let max_sz = compressor.gzip_compress_bound(str_bytes.len());
         let mut compressed_data = Vec::new();
         compressed_data.resize(max_sz, 0);
-        let actual_sz = compressor.gzip_compress(&str_bytes, &mut compressed_data).unwrap();
-        compressed_data.resize(actual_sz, 0);
+        let compressed_slice = compressor.gzip_compress(&str_bytes, compressed_data as &mut [u8]).unwrap();
+        compressed_data.resize(compressed_slice.len(), 0);
         compressed_data
     };
 

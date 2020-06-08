@@ -4,6 +4,7 @@ use std::vec::Vec;
 use std::fs::File;
 use std::io::Read;
 use std::str;
+use std::mem::MaybeUninit;
 use libdeflater::Decompressor;
 
 fn main() {
@@ -38,7 +39,7 @@ fn main() {
         let mut decompressor = Decompressor::new();
         let mut outbuf = Vec::new();
         outbuf.resize(isize, 0);
-        decompressor.gzip_decompress(&gz_data, &mut outbuf).unwrap();
+        decompressor.gzip_decompress(&gz_data, &mut (outbuf as [MaybeUninit<u8>])).unwrap();
         outbuf
     };
 
