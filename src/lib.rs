@@ -61,9 +61,7 @@
 //! [`zlib_compress_bound`]: struct.Compressor.html#method.zlib_compress_bound
 //! [`gzip_compress_bound`]: struct.Compressor.html#method.gzip_compress_bound
 
-mod libdeflate_sys;
-
-use crate::libdeflate_sys::{libdeflate_decompressor,
+use libdeflate_sys::{libdeflate_decompressor,
                             libdeflate_alloc_decompressor,
                             libdeflate_free_decompressor,
                             libdeflate_gzip_decompress,
