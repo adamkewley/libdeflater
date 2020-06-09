@@ -1,7 +1,8 @@
 [package]
-name = "libdeflater"
+name = "libdeflate-sys"
 version = "0.4.0"
 authors = ["Adam Kewley <contact@adamkewley.com>"]
+links = "libdeflate"
 edition = "2018"
 license = "Apache-2.0"
 readme = "README.md"
@@ -13,14 +14,7 @@ description = """
 Bindings to libdeflate for DEFLATE (de)compression exposed as non-streaming buffer
 operations. Contains bindings for raw deflate, zlib, and gzip data.
 """
+build = "build.rs"
 
-[dependencies]
-libdeflate-sys = { version = "0.4.0", path = "libdeflate-sys" }
-
-[dev-dependencies]
-criterion = "0.3"
-flate2 = "1.0.11"
-
-[[bench]]
-name = "benchmarks"
-harness = false
+[build-dependencies]
+cc = "1.0"
