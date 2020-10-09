@@ -144,3 +144,14 @@ xargs.1         4            1.7        19             11
 
 - Corpus entries were compressed with `flate2` at default compression
   level
+
+### Compile-time features
+
+You can enable the following features to customise the build:
+ - `use_rust_alloc`: Makes libdeflate use Rust's allocator instead of the libc one.
+   This is useful when Rust is preconfigured to use a
+   [custom global allocator](https://doc.rust-lang.org/edition-guide/rust-2018/platform-and-target-support/global-allocators.html)
+   (e.g. pool-based, or a tracking one, or something else entirely).
+ - `freestanding`: Builds libdeflate in a freestanding mode (no reliance on libc).
+   This is useful for targets that don't have a C stdlib (e.g. `wasm32-unknown-unknown`)
+   as otherwise they would fail to compile. Implies `use_rust_alloc`.
