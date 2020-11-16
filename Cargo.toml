@@ -15,7 +15,7 @@ operations. Contains bindings for raw deflate, zlib, and gzip data.
 """
 
 [dependencies]
-libdeflate-sys = { version = "0.5.0", path = "libdeflate-sys" }
+libdeflate-sys = { version = "0.6.0", path = "libdeflate-sys" }
 
 [dev-dependencies]
 criterion = "0.3"
