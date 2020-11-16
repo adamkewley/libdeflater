@@ -82,6 +82,14 @@ use libdeflate_sys::{libdeflate_decompressor,
                             libdeflate_free_compressor,
                             libdeflate_crc32};
 
+#[cfg(feature = "use_rust_alloc")]
+mod malloc_wrapper;
+#[cfg(feature = "use_rust_alloc")]
+use malloc_wrapper::init_allocator;
+
+#[cfg(not(feature = "use_rust_alloc"))]
+fn init_allocator() {}
+
 /// A `libdeflate` decompressor that can inflate DEFLATE, zlib, or
 /// gzip data.
 pub struct Decompressor {
@@ -112,6 +120,7 @@ impl Decompressor {
     /// Returns a newly constructed instance of a `Decompressor`.
     pub fn new() -> Decompressor {
         unsafe {
+            init_allocator();
             let ptr = libdeflate_alloc_decompressor();
             if !ptr.is_null() {
                 Decompressor{ p: ptr }
@@ -131,6 +140,7 @@ impl Decompressor {
                            gz_data: &[u8],
                            out: &mut [u8]) -> DecompressionResult<usize> {
         unsafe {
+            init_allocator();
             let mut out_nbytes = 0;
             let in_ptr = gz_data.as_ptr() as *const std::ffi::c_void;
             let out_ptr = out.as_mut_ptr() as *mut std::ffi::c_void;
@@ -168,6 +178,7 @@ impl Decompressor {
                            zlib_data: &[u8],
                            out: &mut [u8]) -> DecompressionResult<usize> {
         unsafe {
+            init_allocator();
             let mut out_nbytes = 0;
             let in_ptr = zlib_data.as_ptr() as *const std::ffi::c_void;
             let out_ptr = out.as_mut_ptr() as *mut std::ffi::c_void;
@@ -206,6 +217,7 @@ impl Decompressor {
                               deflate_data: &[u8],
                               out: &mut [u8]) -> DecompressionResult<usize> {
         unsafe {
+            init_allocator();
             let mut out_nbytes = 0;
             let in_ptr = deflate_data.as_ptr() as *const std::ffi::c_void;
             let out_ptr = out.as_mut_ptr() as *mut std::ffi::c_void;
@@ -350,6 +362,7 @@ impl Compressor {
     /// [`CompressionLvl`](struct.CompressionLvl.html)
     pub fn new(lvl: CompressionLvl) -> Compressor {
         unsafe {
+            init_allocator();
             let ptr = libdeflate_alloc_compressor(lvl.0);
             if !ptr.is_null() {
                 Compressor{ p: ptr }
@@ -378,6 +391,7 @@ impl Compressor {
                             in_raw_data: &[u8],
                             out_deflate_data: &mut [u8]) -> CompressionResult<usize> {
         unsafe {
+            init_allocator();
             let in_ptr = in_raw_data.as_ptr() as *const std::ffi::c_void;
             let out_ptr = out_deflate_data.as_mut_ptr() as *mut std::ffi::c_void;
 
@@ -414,6 +428,7 @@ impl Compressor {
                          in_raw_data: &[u8],
                          out_zlib_data: &mut [u8]) -> CompressionResult<usize> {
         unsafe {
+            init_allocator();
             let in_ptr = in_raw_data.as_ptr() as *const std::ffi::c_void;
             let out_ptr = out_zlib_data.as_mut_ptr() as *mut std::ffi::c_void;
 
@@ -450,6 +465,7 @@ impl Compressor {
                          in_raw_data: &[u8],
                          out_gzip_data: &mut [u8]) -> CompressionResult<usize> {
         unsafe {
+            init_allocator();
             let in_ptr = in_raw_data.as_ptr() as *const std::ffi::c_void;
             let out_ptr = out_gzip_data.as_mut_ptr() as *mut std::ffi::c_void;
 

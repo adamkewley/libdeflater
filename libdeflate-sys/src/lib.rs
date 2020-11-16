@@ -78,6 +78,9 @@ extern "C" {
     pub fn libdeflate_adler32(adler32: u32,
                               buffer: *const ::std::os::raw::c_void,
                               len: usize) -> u32;
+
+    pub fn libdeflate_set_memory_allocator(malloc_func: unsafe extern "C" fn(size: usize) -> *mut ::std::os::raw::c_void,
+                                           free_func: unsafe extern "C" fn(ptr: *mut ::std::os::raw::c_void));
 }
 
 // Basic tests for Rust-to-C bindings. These tests are just for quick

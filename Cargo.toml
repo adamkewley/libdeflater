@@ -24,3 +24,14 @@ flate2 = "1.0.11"
 [[bench]]
 name = "benchmarks"
 harness = false
+
+[features]
+# Makes libdeflate use Rust's allocator instead of the libc one.
+# This is useful when Rust is preconfigured to a custom global allocator
+# (e.g. pool-based, or a tracking one, or something else entirely).
+use_rust_alloc = []
+# Builds libdeflate in a freestanding mode (no reliance on libc).
+# This is useful for targets that don't have a C stdlib (e.g. wasm32-unknown-unknown).
+freestanding = ["libdeflate-sys/freestanding", "use_rust_alloc"]
+
+[workspace]
