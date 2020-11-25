@@ -4,6 +4,7 @@ use std::fs::File;
 use std::io::Read;
 use std::vec::Vec;
 use std::error::Error;
+use std::thread;
 use libdeflater::{Compressor, CompressionLvl, CompressionError, Decompressor, DecompressionError, CompressionLvlError};
 use flate2;
 
@@ -99,6 +100,40 @@ fn test_decompression_error_derives_error() {
     let _e = (&bd) as &(dyn Error);
 }
 
+#[test]
+fn test_can_send_decompressor_to_another_thread() {
+    // note: this is a compile-time test: it just ensures that a
+    // `Decompressor` can be sent between threads easily (i.e. that
+    // `Decompressor` implements `Send`)
+
+    let mut decompressor = Decompressor::new();
+    let t = thread::spawn(move || {
+        let content = read_fixture_gz();
+        let mut decompressed = Vec::new();
+        decompressed.resize(fixture_content_size(), 0);
+
+        decompressor.gzip_decompress(&content, &mut decompressed).unwrap();
+    });
+    t.join().unwrap()
+}
+
+#[test]
+fn test_can_send_compressor_to_another_thread() {
+    // note: this is a compile-time test: it just ensures that a
+    // Compressor can be sent between threads easily (i.e.  that
+    // `Compressor` implements `Send`)
+
+    let mut compressor = Compressor::new(CompressionLvl::default());
+    let t = thread::spawn(move || {
+        let in_data = read_fixture_content();
+        let mut out_data = Vec::new();
+        let out_max_sz = compressor.deflate_compress_bound(in_data.len());
+        out_data.resize(out_max_sz, 0);
+
+        compressor.deflate_compress(&in_data, &mut out_data).unwrap();
+    });
+    t.join().unwrap()
+}
 
 // gz decompression
 
