@@ -95,8 +95,9 @@ fn read_fixture_deflate() -> Vec<u8> {
 
 #[test]
 fn test_can_send_decompressor_to_another_thread() {
-    // note: this is a compile-time test: it just ensures that
-    // Decompressor can be sent between threads easily
+    // note: this is a compile-time test: it just ensures that a
+    // `Decompressor` can be sent between threads easily (i.e. that
+    // `Decompressor` implements `Send`)
 
     let mut decompressor = Decompressor::new();
     let t = thread::spawn(move || {
@@ -111,8 +112,9 @@ fn test_can_send_decompressor_to_another_thread() {
 
 #[test]
 fn test_can_send_compressor_to_another_thread() {
-    // note: this is a compile-time test: it just ensures that
-    // Decompressor can be sent between threads easily
+    // note: this is a compile-time test: it just ensures that a
+    // Compressor can be sent between threads easily (i.e.  that
+    // `Compressor` implements `Send`)
 
     let mut compressor = Compressor::new(CompressionLvl::default());
     let t = thread::spawn(move || {
