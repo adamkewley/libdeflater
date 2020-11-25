@@ -117,17 +117,13 @@ pub enum DecompressionError {
 impl fmt::Display for DecompressionError {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         match &self {
-            DecompressionError::BadData => write!(f, "BadData: the data provided to a libdeflater *_decompress function call was invalid in some way (e.g. bad magic numbers, bad checksum)"),
-            DecompressionError::InsufficientSpace => write!(f, "InsufficientSpace: a buffer provided to a libdeflater *_decompress function call was too small to accommodate the decompressed data")
+            DecompressionError::BadData => write!(f, "the data provided to a libdeflater *_decompress function call was invalid in some way (e.g. bad magic numbers, bad checksum)"),
+            DecompressionError::InsufficientSpace => write!(f, "a buffer provided to a libdeflater *_decompress function call was too small to accommodate the decompressed data")
         }
     }
 }
 
-impl Error for DecompressionError {
-    fn source(&self) -> Option<&(dyn Error + 'static)> {
-        Some(self)
-    }
-}
+impl Error for DecompressionError {}
 
 /// A result returned by decompression methods
 type DecompressionResult<T> = std::result::Result<T, DecompressionError>;
