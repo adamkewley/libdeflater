@@ -109,6 +109,23 @@ fn test_can_send_decompressor_to_another_thread() {
     t.join().unwrap()
 }
 
+#[test]
+fn test_can_send_compressor_to_another_thread() {
+    // note: this is a compile-time test: it just ensures that
+    // Decompressor can be sent between threads easily
+
+    let mut compressor = Compressor::new(CompressionLvl::default());
+    let t = thread::spawn(move || {
+        let in_data = read_fixture_content();
+        let mut out_data = Vec::new();
+        let out_max_sz = compressor.deflate_compress_bound(in_data.len());
+        out_data.resize(out_max_sz, 0);
+
+        compressor.deflate_compress(&in_data, &mut out_data).unwrap();
+    });
+    t.join().unwrap()
+}
+
 // gz decompression
 
 #[test]

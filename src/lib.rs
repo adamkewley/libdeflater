@@ -355,6 +355,7 @@ type CompressionResult<T> = std::result::Result<T, CompressionError>;
 pub struct Compressor {
     p: *mut libdeflate_compressor,
 }
+unsafe impl Send for Compressor {}
 
 impl Compressor {
 
