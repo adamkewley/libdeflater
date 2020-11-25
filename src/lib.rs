@@ -95,6 +95,7 @@ fn init_allocator() {}
 pub struct Decompressor {
     p: *mut libdeflate_decompressor,
 }
+unsafe impl Send for Decompressor {}
 
 /// An error that may be returned by one of the
 /// [`Decompressor`](struct.Decompressor.html)'s `decompress_*`
@@ -354,6 +355,7 @@ type CompressionResult<T> = std::result::Result<T, CompressionError>;
 pub struct Compressor {
     p: *mut libdeflate_compressor,
 }
+unsafe impl Send for Compressor {}
 
 impl Compressor {
 
