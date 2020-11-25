@@ -3,6 +3,7 @@ extern crate libdeflater;
 use std::fs::File;
 use std::io::Read;
 use std::vec::Vec;
+use std::thread;
 use libdeflater::{Compressor, CompressionLvl, CompressionError, Decompressor, DecompressionError, CompressionLvlError};
 use flate2;
 
@@ -92,6 +93,21 @@ fn read_fixture_deflate() -> Vec<u8> {
     read_fixture("tests/hello.deflate")
 }
 
+#[test]
+fn test_can_send_decompressor_to_another_thread() {
+    // note: this is a compile-time test: it just ensures that
+    // Decompressor can be sent between threads easily
+
+    let mut decompressor = Decompressor::new();
+    let t = thread::spawn(move || {
+        let content = read_fixture_gz();
+        let mut decompressed = Vec::new();
+        decompressed.resize(fixture_content_size(), 0);
+
+        decompressor.gzip_decompress(&content, &mut decompressed).unwrap();
+    });
+    t.join().unwrap()
+}
 
 // gz decompression
 
