@@ -3,6 +3,7 @@ extern crate libdeflater;
 use std::fs::File;
 use std::io::Read;
 use std::vec::Vec;
+use std::error::Error;
 use std::thread;
 use libdeflater::{Compressor, CompressionLvl, CompressionError, Decompressor, DecompressionError, CompressionLvlError};
 use flate2;
@@ -91,6 +92,12 @@ fn read_fixture_zlib_with_bad_adler32_checksum() -> Vec<u8> {
 
 fn read_fixture_deflate() -> Vec<u8> {
     read_fixture("tests/hello.deflate")
+}
+
+#[test]
+fn test_decompression_error_derives_error() {
+    let bd = DecompressionError::BadData;
+    let _e = (&bd) as &(dyn Error);
 }
 
 #[test]

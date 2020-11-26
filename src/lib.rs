@@ -61,6 +61,8 @@
 //! [`zlib_compress_bound`]: struct.Compressor.html#method.zlib_compress_bound
 //! [`gzip_compress_bound`]: struct.Compressor.html#method.gzip_compress_bound
 
+use std::error::Error;
+use std::fmt;
 use libdeflate_sys::{libdeflate_decompressor,
                             libdeflate_alloc_decompressor,
                             libdeflate_free_decompressor,
@@ -111,6 +113,17 @@ pub enum DecompressionError {
     /// the decompressed data.
     InsufficientSpace,
 }
+
+impl fmt::Display for DecompressionError {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        match &self {
+            DecompressionError::BadData => write!(f, "the data provided to a libdeflater *_decompress function call was invalid in some way (e.g. bad magic numbers, bad checksum)"),
+            DecompressionError::InsufficientSpace => write!(f, "a buffer provided to a libdeflater *_decompress function call was too small to accommodate the decompressed data")
+        }
+    }
+}
+
+impl Error for DecompressionError {}
 
 /// A result returned by decompression methods
 type DecompressionResult<T> = std::result::Result<T, DecompressionError>;
