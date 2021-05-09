@@ -1,27 +1,39 @@
 # libdeflater
 
+> Rust bindings to [libdeflate](https://github.com/ebiggers/libdeflate), a high-performance
+> library for working with gzip/zlib/deflate data.
+
 [![Build Status](https://travis-ci.org/adamkewley/libdeflater.svg?branch=master)](https://travis-ci.org/adamkewley/libdeflater)
 [![Crates.io](https://img.shields.io/crates/v/libdeflater.svg?maxAge=2592000)](https://crates.io/crates/libdeflater)
 [![Documentation](https://docs.rs/libdeflater/badge.svg)](https://docs.rs/libdeflater)
-
-Rust bindings to [libdeflate](https://github.com/ebiggers/libdeflate).
-A high-performance library for working with gzip/zlib/deflate data.
 
 ```
 libdeflater = "0.7.1"
 ```
 
-**Warning**: libdeflate is for *specialized* use-cases. You should
-             use something like [flate2](https://github.com/alexcrichton/flate2-rs)
-             if you want a general-purpose deflate library.
+`libdeflater` is a thin wrapper library around [libdeflate](https://github.com/ebiggers/libdeflate). Libdeflate 
+is optimal in applications that have the input data up-front, or when (large) input datasets can be split 
+into smaller chunks (e.g. genomic [bam](https://samtools.github.io/hts-specs/SAMv1.pdf) files, some object stores,
+specialized backends, game netcode packets).
 
-libdeflate is optimal in applications that have all input data up and
-have a mechanism for chunking large input datasets (e.g. genomic
-[bam](https://samtools.github.io/hts-specs/SAMv1.pdf) files, some
-object stores, specialized backends, game netcode packets). It has a
-much simpler API than [zlib](https://www.zlib.net/manual.html) but
-can't stream data.
+This is a thin library around libdeflate that:
 
+- Builds [libdeflate](https://github.com/ebiggers/libdeflate) from source (see 
+  [libdeflate-sys](libdeflate-sys)'s [build.rs](libdeflate-sys/build.rs) file)
+
+- Binds to libdeflate's C API with rust bindings (see [lib.rs](src/lib.rs))
+
+- Contains high-level integration tests to ensure the bindings work (see [integration_test.rs](https://github.com/adamkewley/libdeflater/blob/master/tests/integration_test.rs))
+
+- Contains [usage examples](https://github.com/adamkewley/libdeflater/tree/master/examples) and a
+  [benchmark suite](https://github.com/adamkewley/libdeflater/tree/master/benches). The benchmark
+  suite indicates a 2-3x speedup accross the Calgary and Canterbury corpuses (see [Benchmarks](#benchmarks) 
+  section)
+
+⚠️ **Warning**: [libdeflate](https://github.com/ebiggers/libdeflate) is best-suited for *specialized*
+                use-cases where you know the rough size range of your input up-front. You should use
+                something like [flate2](https://github.com/alexcrichton/flate2-rs) if you want a
+                general-purpose deflate library that supports streaming.
 
 # Examples
 
