@@ -361,6 +361,16 @@ pub enum CompressionError {
     InsufficientSpace,
 }
 
+impl fmt::Display for CompressionError {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        match &self {
+            CompressionError::InsufficientSpace => write!(f, "the output buffer provided to a libdeflater *_compress function call was too small for the input data"),
+        }
+    }
+}
+
+impl Error for CompressionError {}
+
 type CompressionResult<T> = std::result::Result<T, CompressionError>;
 
 /// A `libdeflate` compressor that can compress arbitrary data into
