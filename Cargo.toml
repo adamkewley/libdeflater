@@ -1,6 +1,6 @@
 [package]
 name = "libdeflater"
-version = "0.7.4"
+version = "0.7.5"
 authors = ["Adam Kewley <contact@adamkewley.com>"]
 edition = "2018"
 license = "Apache-2.0"
@@ -15,7 +15,7 @@ operations. Contains bindings for raw deflate, zlib, and gzip data.
 """
 
 [dependencies]
-libdeflate-sys = { version = "0.7.4", path = "libdeflate-sys" }
+libdeflate-sys = { version = "0.7.5", path = "libdeflate-sys" }
 
 [dev-dependencies]
 criterion = "0.3"
