@@ -276,7 +276,7 @@ pub struct CompressionLvl(i32);
 
 /// Errors that can be returned when attempting to create a
 /// [`CompressionLvl`](enum.CompressionLvl.html) from a numeric value.
-#[derive(Copy, Clone, PartialEq, Eq, Debug)]
+#[derive(Copy, Clone, PartialEq, Eq, Debug, PartialOrd, Ord)]
 pub enum CompressionLvlError {
     InvalidValue,
 }
