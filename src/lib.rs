@@ -271,12 +271,12 @@ impl Drop for Decompressor {
 
 /// Compression level used by a [`Compressor`](struct.Compressor.html)
 /// instance.
-#[derive(Copy, Clone, PartialEq, Eq, Debug)]
+#[derive(Copy, Clone, Debug, PartialEq, Eq, PartialOrd, Ord)]
 pub struct CompressionLvl(i32);
 
 /// Errors that can be returned when attempting to create a
 /// [`CompressionLvl`](enum.CompressionLvl.html) from a numeric value.
-#[derive(Copy, Clone, PartialEq, Eq, Debug, PartialOrd, Ord)]
+#[derive(Copy, Clone, PartialEq, Eq, Debug)]
 pub enum CompressionLvlError {
     InvalidValue,
 }
