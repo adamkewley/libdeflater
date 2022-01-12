@@ -354,6 +354,18 @@ impl Iterator for CompressionLvlIter {
     }
 }
 
+impl From<CompressionLvl> for i32 {
+    fn from(level: CompressionLvl) -> Self {
+        level.0
+    }
+}
+
+impl From<&CompressionLvl> for i32 {
+    fn from(level: &CompressionLvl) -> Self {
+        level.0
+    }
+}
+
 /// An error that may be returned when calling one of the
 /// [`Compressor`](struct.Compressor.html)'s `compress_*` methods.
 #[derive(Debug, PartialEq)]
