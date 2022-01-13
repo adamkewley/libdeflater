@@ -8,7 +8,7 @@
 [![Documentation](https://docs.rs/libdeflater/badge.svg)](https://docs.rs/libdeflater)
 
 ```
-libdeflater = "0.7.5"
+libdeflater = "0.7.6"
 ```
 
 `libdeflater` is a thin wrapper library around [libdeflate](https://github.com/ebiggers/libdeflate). Libdeflate 
