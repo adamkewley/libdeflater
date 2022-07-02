@@ -297,7 +297,7 @@ impl CompressionLvl {
     /// Valid compression levels for libdeflate, at time of writing,
     /// are 1-12.
     pub fn new(level: i32) -> CompressionLevelResult {
-        const MIN_COMPRESSION_LVL: i32 = 1;
+        const MIN_COMPRESSION_LVL: i32 = 0;
         const MAX_COMPRESSION_LVL: i32 = 12;
 
         if MIN_COMPRESSION_LVL <= level && level <= MAX_COMPRESSION_LVL {

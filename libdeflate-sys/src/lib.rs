@@ -90,7 +90,7 @@ extern "C" {
 mod tests {
     use super::*;
 
-    const MIN_COMP_LVL: i32 = 1;
+    const MIN_COMP_LVL: i32 = 0;
     const MAX_COMP_LVL: i32 = 12;
 
     #[test]

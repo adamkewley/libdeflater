@@ -373,10 +373,9 @@ fn test_calling_deflate_decompress_with_oversized_buf_returns_correct_size() {
 // compression
 
 #[test]
-fn test_compression_lvl_new_returns_err_for_zero() {
-    let ret = CompressionLvl::new(0).unwrap_err();
-
-    assert_eq!(ret, CompressionLvlError::InvalidValue);
+fn test_compression_lvl_new_returns_ok_for_0() {
+    // see issuse #21 - some use-cases require uncompressed blocks
+    CompressionLvl::new(0).unwrap();
 }
 
 #[test]
