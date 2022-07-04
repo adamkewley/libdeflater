@@ -269,6 +269,11 @@ impl Drop for Decompressor {
     }
 }
 
+/// Raw numeric values of compression levels that are accepted by libdeflate
+const MIN_COMPRESSION_LVL: i32 = 0;
+const DEFAULT_COMPRESSION_LVL : i32 = 6;
+const MAX_COMPRESSION_LVL: i32 = 12;
+
 /// Compression level used by a [`Compressor`](struct.Compressor.html)
 /// instance.
 #[derive(Copy, Clone, Debug, PartialEq, Eq, PartialOrd, Ord)]
@@ -297,9 +302,6 @@ impl CompressionLvl {
     /// Valid compression levels for libdeflate, at time of writing,
     /// are 1-12.
     pub fn new(level: i32) -> CompressionLevelResult {
-        const MIN_COMPRESSION_LVL: i32 = 0;
-        const MAX_COMPRESSION_LVL: i32 = 12;
-
         if MIN_COMPRESSION_LVL <= level && level <= MAX_COMPRESSION_LVL {
             Ok(CompressionLvl(level))
         } else {
@@ -310,20 +312,20 @@ impl CompressionLvl {
     /// Returns the fastest compression level. This compression level
     /// offers the highest performance but lowest compression ratio.
     pub fn fastest() -> CompressionLvl {
-        CompressionLvl(1)
+        CompressionLvl(MIN_COMPRESSION_LVL)
     }
 
     /// Returns the best compression level, in terms of compression
     /// ratio. This compression level offers the best compression
     /// ratio but lowest performance.
     pub fn best() -> CompressionLvl {
-        CompressionLvl(12)
+        CompressionLvl(MAX_COMPRESSION_LVL)
     }
 
     /// Returns an iterator that emits all compression levels
     /// supported by `libdeflate` in ascending order.
     pub fn iter() -> CompressionLvlIter {
-        CompressionLvlIter(1)
+        CompressionLvlIter(MIN_COMPRESSION_LVL)
     }
 }
 
@@ -331,7 +333,7 @@ impl Default for CompressionLvl {
     /// Returns the default compression level reccomended by
     /// libdeflate.
     fn default() -> CompressionLvl {
-        CompressionLvl(6)
+        CompressionLvl(DEFAULT_COMPRESSION_LVL)
     }
 }
 
@@ -344,7 +346,7 @@ impl Iterator for CompressionLvlIter {
     type Item = CompressionLvl;
 
     fn next(&mut self) -> Option<Self::Item> {
-        if self.0 <= 12 {
+        if self.0 <= MAX_COMPRESSION_LVL {
             let ret = Some(CompressionLvl(self.0));
             self.0 += 1;
             ret

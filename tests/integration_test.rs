@@ -408,6 +408,13 @@ fn test_compressor_with_best_compression_lvl_calls_with_no_panics() {
 }
 
 #[test]
+fn test_compression_iter_starts_at_compression_lvl_zero() {
+    let val = CompressionLvl::iter().next().unwrap();
+    assert_eq!(val, CompressionLvl::fastest());
+    assert_eq!(val, CompressionLvl::new(0).unwrap());
+}
+
+#[test]
 fn test_compressor_with_compression_lvl_can_be_called_with_all_lvls_with_no_panics() {
     for lvl in CompressionLvl::iter() {
         Compressor::new(lvl);
