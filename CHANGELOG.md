@@ -7,6 +7,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.10.0]
+
+- Fixed `CompressionLvl::iter` not returning compression lvl 0 as
+  its first element (#21)
+
+## [0.9.0]
+
+- Added support for compression lvl 0 (#21)
+
 ## [0.8.0]
 
 - Updated libdeflate from around v1.6 to v1.10
