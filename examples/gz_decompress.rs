@@ -28,7 +28,7 @@ fn main() {
         let mut ret: u32 = isize_bytes[0] as u32;
         ret |= (isize_bytes[1] as u32) << 8;
         ret |= (isize_bytes[2] as u32) << 16;
-        ret |= (isize_bytes[3] as u32) << 26;
+        ret |= (isize_bytes[3] as u32) << 24;
         ret as usize
     };
 
