@@ -17,9 +17,13 @@ cols = ["bench", "size [KB]", "speedup", "flate2 [us]", "libdeflate [us]"]
 
 for dir in Dir.glob("target/criterion/**") do
   group = dir.split("/")[-1].downcase()
-  filesize = File.size(File.join("bench_data", group))
-  flate2_avg = JSON.parse(File.read(File.join(dir, "flate2_#{suffix}", "new", "estimates.json")))["Mean"]["point_estimate"]
-  libdeflate_avg = JSON.parse(File.read(File.join(dir, "libdeflate_#{suffix}", "new", "estimates.json")))["Mean"]["point_estimate"]
+  input_file = File.join("bench_data", group)
+  if not File.exists?(input_file)
+    next
+  end
+  filesize = File.size(input_file)
+  flate2_avg = JSON.parse(File.read(File.join(dir, "flate2_#{suffix}", "new", "estimates.json")))["mean"]["point_estimate"]
+  libdeflate_avg = JSON.parse(File.read(File.join(dir, "libdeflate_#{suffix}", "new", "estimates.json")))["mean"]["point_estimate"]
   speedup = (flate2_avg.to_f()/libdeflate_avg.to_f()).round(1).to_s()
 
   result = {
