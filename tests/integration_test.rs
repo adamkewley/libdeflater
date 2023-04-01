@@ -769,7 +769,7 @@ fn test_use_adler32_reader_to_compute_adler32_of_fixture_returns_same_adler32_as
 
     let input_data = read_fixture_content();
 
-    let flate2_adler32 = {
+    let crate_adler32 = {
         let mut adler32 = adler32::RollingAdler32::new();
         adler32.update_buffer(&input_data);
         adler32.update_buffer(&input_data);
@@ -783,7 +783,7 @@ fn test_use_adler32_reader_to_compute_adler32_of_fixture_returns_same_adler32_as
         adler32.sum()
     };
 
-    assert_eq!(flate2_adler32, libdeflate_adler32);
+    assert_eq!(crate_adler32, libdeflate_adler32);
 }
 
 #[test]
@@ -793,7 +793,7 @@ fn test_use_adler32_convenience_method_returns_same_adler32_as_adler32_crate() {
 
     let input_data = read_fixture_content();
 
-    let flate2_adler32 = {
+    let crate_adler32 = {
         let mut adler32 = adler32::RollingAdler32::new();
         adler32.update_buffer(&input_data);
         adler32.hash()
@@ -801,5 +801,5 @@ fn test_use_adler32_convenience_method_returns_same_adler32_as_adler32_crate() {
 
     let libdeflate_adler32 = libdeflater::adler32(&input_data);
 
-    assert_eq!(flate2_adler32, libdeflate_adler32);
+    assert_eq!(crate_adler32, libdeflate_adler32);
 }
