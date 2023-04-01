@@ -82,7 +82,8 @@ use libdeflate_sys::{libdeflate_decompressor,
                             libdeflate_gzip_compress_bound,
                             libdeflate_gzip_compress,
                             libdeflate_free_compressor,
-                            libdeflate_crc32};
+                            libdeflate_crc32,
+                            libdeflate_adler32};
 
 #[cfg(feature = "use_rust_alloc")]
 mod malloc_wrapper;
@@ -567,4 +568,40 @@ pub fn crc32(data: &[u8]) -> u32 {
     let mut crc = Crc::new();
     crc.update(&data);
     crc.sum()
+}
+
+/// Struct holding the state required to compute a rolling adler32
+/// value.
+pub struct Adler32 {
+    val: u32,
+}
+
+impl Adler32 {
+    /// Returns a new `Adler32` instance (with initial adler32 value 1, which is default for adler32)
+    pub fn new() -> Adler32 {
+        Adler32 { val: 1 }
+    }
+    /// Update the Adler32 with the bytes in `data`
+    pub fn update(&mut self, data: &[u8]) {
+        unsafe
+            {
+                self.val = libdeflate_adler32(self.val,
+                                              data.as_ptr() as *const core::ffi::c_void,
+                                              data.len());
+            }
+    }
+    /// Returns the current Adler32 checksum
+    pub fn sum(&self) -> u32 {
+        self.val
+    }
+}
+/// Returns the Adler32 checksum of the bytes in `data`.
+///
+/// Note: this is a one-shot method that requires all data
+/// up-front. Developers wanting to compute a rolling adler32 from
+/// (e.g.) a stream should use [`Adler32`](struct.Adler32.html)
+pub fn adler32(data:&[u8]) -> u32 {
+    let mut adler32 = Adler32::new();
+    adler32.update(&data);
+    adler32.sum()
 }
