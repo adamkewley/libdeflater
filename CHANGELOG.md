@@ -7,6 +7,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+- Added `Adler32` struct and `adler32` helper functions, which expose libdeflate's high-performance
+  adler32 checksum algorithm to library users (#26 - thanks @peterdk)
+
 ## [0.12.0]
 
 - Updated libdeflate to v1.17
