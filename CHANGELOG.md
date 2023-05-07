@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.14.0]
+
+- Updated libdeflate to v1.18 (#27)
+
 ## [0.13.0]
 
 - Added `Adler32` struct and `adler32` helper functions, which expose libdeflate's high-performance
