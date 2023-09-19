@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.19.0]
+
+- Updated libdeflate to v1.19 (#28)
+- Because the API of `libdeflater` has been (effectively) frozen for several
+  years, the versioning of the library was changed to match upstream `libdeflate`
+
 ## [0.14.0]
 
 - Updated libdeflate to v1.18 (#27)
