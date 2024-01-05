@@ -5,6 +5,15 @@ use std::path::{Path, PathBuf};
 fn main() {
     let dst = PathBuf::from(env::var_os("OUT_DIR").unwrap());
 
+    if pkg_config::Config::new()
+        .print_system_libs(false)
+        .cargo_metadata(true)
+        .probe("libdeflate")
+        .is_ok()
+    {
+        return;
+    }
+
     let mut build = cc::Build::new();
 
     build
