@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.19.1]
+
+- Libdeflate-sys now finds libdeflate via `pkgconfig` when it's available, rather than
+  using the in-tree version (#30, thanks @musicinmybrain)
+
 ## [1.19.0]
 
 - Updated libdeflate to v1.19 (#28)
