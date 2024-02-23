@@ -8,6 +8,7 @@ fn main() {
     if pkg_config::Config::new()
         .print_system_libs(false)
         .cargo_metadata(true)
+        .exactly_version("1.19")
         .probe("libdeflate")
         .is_ok()
     {
