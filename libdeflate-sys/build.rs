@@ -46,7 +46,7 @@ fn main() {
     let src = Path::new("libdeflate");
     let include = dst.join("include");
     fs::create_dir_all(&include).unwrap();
-    fs::copy(src.join("libdeflate.h"), &include.join("libdeflate.h")).unwrap();
+    fs::copy(src.join("libdeflate.h"), include.join("libdeflate.h")).unwrap();
     println!("cargo:root={}", dst.display());
     println!("cargo:include={}", include.display());
 }
