@@ -18,7 +18,8 @@ build = "build.rs"
 
 [build-dependencies]
 cc = "1.0"
-pkg-config = "0.3.9"
+pkg-config = { version = "0.3.9", optional = true }
 
 [features]
 freestanding = []
+dynamic = ["pkg-config"]
