@@ -7,6 +7,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.19.3]
+
+- The mechanism where libdeflate is found via `pkgconfig` is now behind a `dynamic`
+  feature flag, which lets downstream package users configure whether they want to
+  use the in-tree copy of libdeflate or one provided from `pkgconfig` (thanks
+  @joshtoik1, #32)
+
+## [1.19.2]
+
+- Fixed a packaging issue where libdeflate's sources weren't packaged in the cargo crate
+  (thanks for reporting, @Brooooooklyn, #31)
+
 ## [1.19.1]
 
 - Libdeflate-sys now finds libdeflate via `pkgconfig` when it's available, rather than
