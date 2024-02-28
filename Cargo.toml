@@ -34,5 +34,8 @@ use_rust_alloc = []
 # Builds libdeflate in a freestanding mode (no reliance on libc).
 # This is useful for targets that don't have a C stdlib (e.g. wasm32-unknown-unknown).
 freestanding = ["libdeflate-sys/freestanding", "use_rust_alloc"]
+# Link to system/external libdeflate library when available, instead of
+# building it from source.
+dynamic = ["libdeflate-sys/dynamic"]
 
 [workspace]

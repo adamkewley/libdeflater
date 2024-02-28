@@ -5,9 +5,11 @@ use std::path::{Path, PathBuf};
 fn main() {
     let dst = PathBuf::from(env::var_os("OUT_DIR").unwrap());
 
+    #[cfg(feature = "dynamic")]
     if pkg_config::Config::new()
         .print_system_libs(false)
         .cargo_metadata(true)
+        .exactly_version("1.19")
         .probe("libdeflate")
         .is_ok()
     {
@@ -46,7 +48,7 @@ fn main() {
     let src = Path::new("libdeflate");
     let include = dst.join("include");
     fs::create_dir_all(&include).unwrap();
-    fs::copy(src.join("libdeflate.h"), &include.join("libdeflate.h")).unwrap();
+    fs::copy(src.join("libdeflate.h"), include.join("libdeflate.h")).unwrap();
     println!("cargo:root={}", dst.display());
     println!("cargo:include={}", include.display());
 }
