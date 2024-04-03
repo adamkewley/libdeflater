@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.20.0]
+
+- Updated libdeflate to v1.20 (#34)
+
 ## [1.19.3]
 
 - The mechanism where libdeflate is found via `pkgconfig` is now behind a `dynamic`
