@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.23.0]
+
+- Updated libdeflate to v1.23
+
 ## [1.22.0]
 
 - Updated libdeflate to v1.22 (#38, thanks @musicinmybrain)
