@@ -5,7 +5,7 @@ use libdeflater::{Compressor, CompressionLvl};
 
 fn main() {
     let str_to_compress = "hello\n";
-    let str_bytes = str_to_compress.as_bytes().clone();
+    let str_bytes = str_to_compress.as_bytes();
 
     let compressed_data = {
         let mut compressor = Compressor::new(CompressionLvl::default());
