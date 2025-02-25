@@ -1,111 +1,21 @@
-#![allow(non_upper_case_globals)]
-#![allow(non_camel_case_types)]
-#![allow(non_snake_case)]
-#![allow(dead_code)]
-#![allow(bad_style)]
+#[allow(non_upper_case_globals)]
+#[allow(non_camel_case_types)]
+#[allow(non_snake_case)]
+#[allow(dead_code)]
+#[allow(bad_style)]
+mod bindings;
 
-#[repr(C)]
-pub struct libdeflate_compressor {
-    _unused: [u8; 0],
-}
-#[repr(C)]
-pub struct libdeflate_decompressor {
-    _unused: [u8; 0],
-}
-pub const libdeflate_result_LIBDEFLATE_SUCCESS: libdeflate_result = 0;
-pub const libdeflate_result_LIBDEFLATE_BAD_DATA: libdeflate_result = 1;
-pub const libdeflate_result_LIBDEFLATE_SHORT_OUTPUT: libdeflate_result = 2;
-pub const libdeflate_result_LIBDEFLATE_INSUFFICIENT_SPACE: libdeflate_result = 3;
-pub type libdeflate_result = u32;
+pub use bindings::*;
 
-extern "C" {
-    pub fn libdeflate_alloc_decompressor() -> *mut libdeflate_decompressor;
-    pub fn libdeflate_free_decompressor(decompressor: *mut libdeflate_decompressor);
-
-    pub fn libdeflate_gzip_decompress(
-        decompressor: *mut libdeflate_decompressor,
-        in_: *const ::std::os::raw::c_void,
-        in_nbytes: usize,
-        out: *mut ::std::os::raw::c_void,
-        out_nbytes_avail: usize,
-        actual_out_nbytes_ret: *mut usize,
-    ) -> libdeflate_result;
-
-    pub fn libdeflate_zlib_decompress(
-        decompressor: *mut libdeflate_decompressor,
-        in_: *const ::std::os::raw::c_void,
-        in_nbytes: usize,
-        out: *mut ::std::os::raw::c_void,
-        out_nbytes_avail: usize,
-        actual_out_nbytes_ret: *mut usize,
-    ) -> libdeflate_result;
-
-    pub fn libdeflate_deflate_decompress(
-        decompressor: *mut libdeflate_decompressor,
-        in_: *const ::std::os::raw::c_void,
-        in_nbytes: usize,
-        out: *mut ::std::os::raw::c_void,
-        out_nbytes_avail: usize,
-        actual_out_nbytes_ret: *mut usize,
-    ) -> libdeflate_result;
-
-    pub fn libdeflate_alloc_compressor(
-        compression_level: ::std::os::raw::c_int,
-    ) -> *mut libdeflate_compressor;
-
-    pub fn libdeflate_deflate_compress_bound(
-        compressor: *mut libdeflate_compressor,
-        in_nbytes: usize,
-    ) -> usize;
-
-    pub fn libdeflate_deflate_compress(
-        compressor: *mut libdeflate_compressor,
-        in_: *const ::std::os::raw::c_void,
-        in_nbytes: usize,
-        out: *mut ::std::os::raw::c_void,
-        out_nbytes_avail: usize,
-    ) -> usize;
-
-    pub fn libdeflate_zlib_compress_bound(
-        compressor: *mut libdeflate_compressor,
-        in_nbytes: usize,
-    ) -> usize;
-
-    pub fn libdeflate_zlib_compress(
-        compressor: *mut libdeflate_compressor,
-        in_: *const ::std::os::raw::c_void,
-        in_nbytes: usize,
-        out: *mut ::std::os::raw::c_void,
-        out_nbytes_avail: usize,
-    ) -> usize;
-
-    pub fn libdeflate_gzip_compress_bound(
-        compressor: *mut libdeflate_compressor,
-        in_nbytes: usize,
-    ) -> usize;
-
-    pub fn libdeflate_gzip_compress(
-        compressor: *mut libdeflate_compressor,
-        in_: *const ::std::os::raw::c_void,
-        in_nbytes: usize,
-        out: *mut ::std::os::raw::c_void,
-        out_nbytes_avail: usize,
-    ) -> usize;
-
-    pub fn libdeflate_free_compressor(compressor: *mut libdeflate_compressor);
-
-    pub fn libdeflate_crc32(crc32: u32, buffer: *const ::std::os::raw::c_void, len: usize) -> u32;
-
-    pub fn libdeflate_adler32(
-        adler32: u32,
-        buffer: *const ::std::os::raw::c_void,
-        len: usize,
-    ) -> u32;
-
-    pub fn libdeflate_set_memory_allocator(
-        malloc_func: unsafe extern "C" fn(size: usize) -> *mut ::std::os::raw::c_void,
-        free_func: unsafe extern "C" fn(ptr: *mut ::std::os::raw::c_void),
-    );
+// For backwards-compatibility, we override the auto generated bindings for
+// `libdeflate_set_memory_allocator` to take the malloc and free functions as function pointers
+// directly rather than as `Option`s
+#[inline]
+pub unsafe extern "C" fn libdeflate_set_memory_allocator(
+    malloc_func: unsafe extern "C" fn(arg1: usize) -> *mut ::core::ffi::c_void,
+    free_func: unsafe extern "C" fn(arg1: *mut ::core::ffi::c_void),
+) {
+    bindings::libdeflate_set_memory_allocator(Some(malloc_func), Some(free_func));
 }
 
 // Basic tests for Rust-to-C bindings. These tests are just for quick
