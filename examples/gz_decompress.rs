@@ -1,10 +1,10 @@
 extern crate libdeflater;
 
-use std::vec::Vec;
+use libdeflater::Decompressor;
 use std::fs::File;
 use std::io::Read;
 use std::str;
-use libdeflater::Decompressor;
+use std::vec::Vec;
 
 fn main() {
     let gz_data = {
@@ -32,7 +32,11 @@ fn main() {
         ret as usize
     };
 
-    println!("input data length = {}, expected output data length = {}", gz_data.len(), isize);
+    println!(
+        "input data length = {}, expected output data length = {}",
+        gz_data.len(),
+        isize
+    );
 
     let decompressed_data = {
         let mut decompressor = Decompressor::new();
@@ -42,5 +46,8 @@ fn main() {
         outbuf
     };
 
-    println!("output data = {:?}", str::from_utf8(&decompressed_data).unwrap());
+    println!(
+        "output data = {:?}",
+        str::from_utf8(&decompressed_data).unwrap()
+    );
 }
