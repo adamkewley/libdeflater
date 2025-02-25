@@ -72,6 +72,7 @@ use libdeflate_sys::{
 };
 use std::error::Error;
 use std::fmt;
+use std::ptr::NonNull;
 
 #[cfg(feature = "use_rust_alloc")]
 mod malloc_wrapper;
@@ -84,7 +85,7 @@ fn init_allocator() {}
 /// A `libdeflate` decompressor that can inflate DEFLATE, zlib, or
 /// gzip data.
 pub struct Decompressor {
-    p: *mut libdeflate_decompressor,
+    p: NonNull<libdeflate_decompressor>,
 }
 unsafe impl Send for Decompressor {}
 
@@ -130,7 +131,7 @@ impl Decompressor {
         unsafe {
             init_allocator();
             let ptr = libdeflate_alloc_decompressor();
-            if !ptr.is_null() {
+            if let Some(ptr) = NonNull::new(ptr) {
                 Decompressor { p: ptr }
             } else {
                 panic!("libdeflate_alloc_decompressor returned NULL: out of memory");
@@ -155,7 +156,7 @@ impl Decompressor {
             let in_ptr = gz_data.as_ptr() as *const std::ffi::c_void;
             let out_ptr = out.as_mut_ptr() as *mut std::ffi::c_void;
             let ret: libdeflate_result = libdeflate_gzip_decompress(
-                self.p,
+                self.p.as_ptr(),
                 in_ptr,
                 gz_data.len(),
                 out_ptr,
@@ -192,7 +193,7 @@ impl Decompressor {
             let in_ptr = zlib_data.as_ptr() as *const std::ffi::c_void;
             let out_ptr = out.as_mut_ptr() as *mut std::ffi::c_void;
             let ret: libdeflate_result = libdeflate_zlib_decompress(
-                self.p,
+                self.p.as_ptr(),
                 in_ptr,
                 zlib_data.len(),
                 out_ptr,
@@ -230,7 +231,7 @@ impl Decompressor {
             let in_ptr = deflate_data.as_ptr() as *const std::ffi::c_void;
             let out_ptr = out.as_mut_ptr() as *mut std::ffi::c_void;
             let ret: libdeflate_result = libdeflate_deflate_decompress(
-                self.p,
+                self.p.as_ptr(),
                 in_ptr,
                 deflate_data.len(),
                 out_ptr,
@@ -255,7 +256,7 @@ impl Decompressor {
 impl Drop for Decompressor {
     fn drop(&mut self) {
         unsafe {
-            libdeflate_free_decompressor(self.p);
+            libdeflate_free_decompressor(self.p.as_ptr());
         }
     }
 }
@@ -381,7 +382,7 @@ type CompressionResult<T> = std::result::Result<T, CompressionError>;
 /// A `libdeflate` compressor that can compress arbitrary data into
 /// DEFLATE, zlib, or gzip formats.
 pub struct Compressor {
-    p: *mut libdeflate_compressor,
+    p: NonNull<libdeflate_compressor>,
 }
 unsafe impl Send for Compressor {}
 
@@ -393,7 +394,7 @@ impl Compressor {
         unsafe {
             init_allocator();
             let ptr = libdeflate_alloc_compressor(lvl.0);
-            if !ptr.is_null() {
+            if let Some(ptr) = NonNull::new(ptr) {
                 Compressor { p: ptr }
             } else {
                 panic!("libdeflate_alloc_compressor returned NULL: out of memory");
@@ -407,7 +408,7 @@ impl Compressor {
     /// possible compression ratio (i.e. assumes the data cannot be
     /// compressed), format overhead, etc.
     pub fn deflate_compress_bound(&mut self, n_bytes: usize) -> usize {
-        unsafe { libdeflate_deflate_compress_bound(self.p, n_bytes) }
+        unsafe { libdeflate_deflate_compress_bound(self.p.as_ptr(), n_bytes) }
     }
 
     /// Compresses `in_raw_data` as
@@ -425,7 +426,7 @@ impl Compressor {
             let out_ptr = out_deflate_data.as_mut_ptr() as *mut std::ffi::c_void;
 
             let sz = libdeflate_deflate_compress(
-                self.p,
+                self.p.as_ptr(),
                 in_ptr,
                 in_raw_data.len(),
                 out_ptr,
@@ -446,7 +447,7 @@ impl Compressor {
     /// possible compression ratio (i.e. assumes the data cannot be
     /// compressed), format overhead, etc.
     pub fn zlib_compress_bound(&mut self, n_bytes: usize) -> usize {
-        unsafe { libdeflate_zlib_compress_bound(self.p, n_bytes) }
+        unsafe { libdeflate_zlib_compress_bound(self.p.as_ptr(), n_bytes) }
     }
 
     /// Compresses `in_raw_data` as
@@ -464,7 +465,7 @@ impl Compressor {
             let out_ptr = out_zlib_data.as_mut_ptr() as *mut std::ffi::c_void;
 
             let sz = libdeflate_zlib_compress(
-                self.p,
+                self.p.as_ptr(),
                 in_ptr,
                 in_raw_data.len(),
                 out_ptr,
@@ -485,7 +486,7 @@ impl Compressor {
     /// possible compression ratio (i.e. assumes the data cannot be
     /// compressed), format overhead, etc.
     pub fn gzip_compress_bound(&mut self, n_bytes: usize) -> usize {
-        unsafe { libdeflate_gzip_compress_bound(self.p, n_bytes) }
+        unsafe { libdeflate_gzip_compress_bound(self.p.as_ptr(), n_bytes) }
     }
 
     /// Compresses `in_raw_data` as
@@ -503,7 +504,7 @@ impl Compressor {
             let out_ptr = out_gzip_data.as_mut_ptr() as *mut std::ffi::c_void;
 
             let sz = libdeflate_gzip_compress(
-                self.p,
+                self.p.as_ptr(),
                 in_ptr,
                 in_raw_data.len(),
                 out_ptr,
@@ -522,7 +523,7 @@ impl Compressor {
 impl Drop for Compressor {
     fn drop(&mut self) {
         unsafe {
-            libdeflate_free_compressor(self.p);
+            libdeflate_free_compressor(self.p.as_ptr());
         }
     }
 }
