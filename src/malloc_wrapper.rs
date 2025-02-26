@@ -23,24 +23,42 @@
 //! for the whole allocated chunk.
 
 use libdeflate_sys::libdeflate_options;
-use std::alloc::*;
+use std::alloc::{alloc, dealloc, Layout};
 use std::ffi::c_void;
 use std::mem::{align_of, size_of};
 
-unsafe fn layout_for(size: usize) -> Layout {
-    Layout::from_size_align_unchecked(size_of::<usize>() + size, align_of::<usize>())
+fn layout_for(size: usize) -> Option<Layout> {
+    Layout::from_size_align(size.checked_add(size_of::<usize>())?, align_of::<usize>()).ok()
 }
 
 unsafe extern "C" fn malloc(size: usize) -> *mut c_void {
-    let size_and_data_ptr = alloc(layout_for(size));
-    *(size_and_data_ptr as *mut usize) = size;
-    size_and_data_ptr.add(size_of::<usize>()) as _
+    let layout = match layout_for(size) {
+        Some(layout) => layout,
+        None => return std::ptr::null_mut(),
+    };
+    let size_and_data_ptr = alloc(layout).cast::<usize>();
+    if size_and_data_ptr.is_null() {
+        return std::ptr::null_mut();
+    }
+    *size_and_data_ptr = size;
+    size_and_data_ptr.add(1).cast::<c_void>()
 }
 
 unsafe extern "C" fn free(data_ptr: *mut c_void) {
-    let size_and_data_ptr = data_ptr.sub(size_of::<usize>());
-    let size = *(size_and_data_ptr as *const usize);
-    dealloc(size_and_data_ptr as _, layout_for(size))
+    // The free function should "behave like" the standard free function.
+    if data_ptr.is_null() {
+        return;
+    }
+
+    let size_and_data_ptr = data_ptr.cast::<usize>().sub(1);
+    let size = *size_and_data_ptr;
+
+    let layout = match layout_for(size) {
+        Some(layout) => layout,
+        // If the layout was invalid, we couldn't have allocated it in the first place
+        None => std::hint::unreachable_unchecked(),
+    };
+    dealloc(size_and_data_ptr.cast(), layout);
 }
 
 pub const OPTIONS: libdeflate_options = libdeflate_options {
