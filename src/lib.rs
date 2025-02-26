@@ -61,6 +61,8 @@
 //! [`zlib_compress_bound`]: struct.Compressor.html#method.zlib_compress_bound
 //! [`gzip_compress_bound`]: struct.Compressor.html#method.gzip_compress_bound
 
+#![no_std]
+
 use libdeflate_sys::{
     libdeflate_adler32, libdeflate_compressor, libdeflate_crc32, libdeflate_decompressor,
     libdeflate_deflate_compress, libdeflate_deflate_compress_bound, libdeflate_deflate_decompress,
@@ -70,9 +72,9 @@ use libdeflate_sys::{
     libdeflate_result_LIBDEFLATE_SUCCESS, libdeflate_zlib_compress, libdeflate_zlib_compress_bound,
     libdeflate_zlib_decompress,
 };
-use std::error::Error;
-use std::fmt;
-use std::ptr::NonNull;
+use core::error::Error;
+use core::fmt;
+use core::ptr::NonNull;
 
 #[cfg(not(feature = "use_rust_alloc"))]
 use libdeflate_sys::{libdeflate_alloc_compressor, libdeflate_alloc_decompressor};
@@ -122,7 +124,7 @@ impl fmt::Display for DecompressionError {
 impl Error for DecompressionError {}
 
 /// A result returned by decompression methods
-type DecompressionResult<T> = std::result::Result<T, DecompressionError>;
+type DecompressionResult<T> = Result<T, DecompressionError>;
 
 impl Default for Decompressor {
     fn default() -> Self {
@@ -161,8 +163,8 @@ impl Decompressor {
     ) -> DecompressionResult<usize> {
         unsafe {
             let mut out_nbytes = 0;
-            let in_ptr = gz_data.as_ptr().cast::<std::ffi::c_void>();
-            let out_ptr = out.as_mut_ptr().cast::<std::ffi::c_void>();
+            let in_ptr = gz_data.as_ptr().cast::<core::ffi::c_void>();
+            let out_ptr = out.as_mut_ptr().cast::<core::ffi::c_void>();
             let ret: libdeflate_result = libdeflate_gzip_decompress(
                 self.p.as_ptr(),
                 in_ptr,
@@ -197,8 +199,8 @@ impl Decompressor {
     ) -> DecompressionResult<usize> {
         unsafe {
             let mut out_nbytes = 0;
-            let in_ptr = zlib_data.as_ptr().cast::<std::ffi::c_void>();
-            let out_ptr = out.as_mut_ptr().cast::<std::ffi::c_void>();
+            let in_ptr = zlib_data.as_ptr().cast::<core::ffi::c_void>();
+            let out_ptr = out.as_mut_ptr().cast::<core::ffi::c_void>();
             let ret: libdeflate_result = libdeflate_zlib_decompress(
                 self.p.as_ptr(),
                 in_ptr,
@@ -234,8 +236,8 @@ impl Decompressor {
     ) -> DecompressionResult<usize> {
         unsafe {
             let mut out_nbytes = 0;
-            let in_ptr = deflate_data.as_ptr().cast::<std::ffi::c_void>();
-            let out_ptr = out.as_mut_ptr().cast::<std::ffi::c_void>();
+            let in_ptr = deflate_data.as_ptr().cast::<core::ffi::c_void>();
+            let out_ptr = out.as_mut_ptr().cast::<core::ffi::c_void>();
             let ret: libdeflate_result = libdeflate_deflate_decompress(
                 self.p.as_ptr(),
                 in_ptr,
@@ -386,7 +388,7 @@ impl fmt::Display for CompressionError {
 
 impl Error for CompressionError {}
 
-type CompressionResult<T> = std::result::Result<T, CompressionError>;
+type CompressionResult<T> = Result<T, CompressionError>;
 
 /// A `libdeflate` compressor that can compress arbitrary data into
 /// DEFLATE, zlib, or gzip formats.
@@ -410,7 +412,7 @@ impl Compressor {
         unsafe {
             #[cfg(feature = "use_rust_alloc")]
             let ptr =
-                libdeflate_alloc_compressor_ex(lvl.0 as std::ffi::c_int, &malloc_wrapper::OPTIONS);
+                libdeflate_alloc_compressor_ex(lvl.0 as core::ffi::c_int, &malloc_wrapper::OPTIONS);
             #[cfg(not(feature = "use_rust_alloc"))]
             let ptr = libdeflate_alloc_compressor(lvl.0);
             if let Some(ptr) = NonNull::new(ptr) {
@@ -440,8 +442,8 @@ impl Compressor {
         out_deflate_data: &mut [u8],
     ) -> CompressionResult<usize> {
         unsafe {
-            let in_ptr = in_raw_data.as_ptr().cast::<std::ffi::c_void>();
-            let out_ptr = out_deflate_data.as_mut_ptr().cast::<std::ffi::c_void>();
+            let in_ptr = in_raw_data.as_ptr().cast::<core::ffi::c_void>();
+            let out_ptr = out_deflate_data.as_mut_ptr().cast::<core::ffi::c_void>();
 
             let sz = libdeflate_deflate_compress(
                 self.p.as_ptr(),
@@ -478,8 +480,8 @@ impl Compressor {
         out_zlib_data: &mut [u8],
     ) -> CompressionResult<usize> {
         unsafe {
-            let in_ptr = in_raw_data.as_ptr().cast::<std::ffi::c_void>();
-            let out_ptr = out_zlib_data.as_mut_ptr().cast::<std::ffi::c_void>();
+            let in_ptr = in_raw_data.as_ptr().cast::<core::ffi::c_void>();
+            let out_ptr = out_zlib_data.as_mut_ptr().cast::<core::ffi::c_void>();
 
             let sz = libdeflate_zlib_compress(
                 self.p.as_ptr(),
@@ -516,8 +518,8 @@ impl Compressor {
         out_gzip_data: &mut [u8],
     ) -> CompressionResult<usize> {
         unsafe {
-            let in_ptr = in_raw_data.as_ptr().cast::<std::ffi::c_void>();
-            let out_ptr = out_gzip_data.as_mut_ptr().cast::<std::ffi::c_void>();
+            let in_ptr = in_raw_data.as_ptr().cast::<core::ffi::c_void>();
+            let out_ptr = out_gzip_data.as_mut_ptr().cast::<core::ffi::c_void>();
 
             let sz = libdeflate_gzip_compress(
                 self.p.as_ptr(),

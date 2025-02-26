@@ -6,7 +6,7 @@ edition = "2021"
 license = "Apache-2.0"
 readme = "README.md"
 keywords = ["gzip", "zlib", "deflate", "encoding"]
-categories = ["compression", "api-bindings"]
+categories = ["compression", "api-bindings", "no-std"]
 repository = "https://github.com/adamkewley/libdeflater"
 homepage = "https://github.com/adamkewley/libdeflater"
 description = """
@@ -20,7 +20,7 @@ exclude = [
     "examples/",
     "scripts/",
 ]
-rust-version = "1.64"
+rust-version = "1.81"
 
 [dependencies]
 libdeflate-sys = { version = "1.23.0", path = "libdeflate-sys" }

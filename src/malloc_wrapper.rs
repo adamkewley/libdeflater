@@ -22,10 +22,12 @@
 //! At this point we can read `size` back and call the Rust `dealloc`
 //! for the whole allocated chunk.
 
+extern crate alloc;
+
+use alloc::alloc::{alloc, dealloc, Layout};
+use core::ffi::c_void;
+use core::mem::{align_of, size_of};
 use libdeflate_sys::libdeflate_options;
-use std::alloc::{alloc, dealloc, Layout};
-use std::ffi::c_void;
-use std::mem::{align_of, size_of};
 
 fn layout_for(size: usize) -> Option<Layout> {
     Layout::from_size_align(size.checked_add(size_of::<usize>())?, align_of::<usize>()).ok()
@@ -34,11 +36,11 @@ fn layout_for(size: usize) -> Option<Layout> {
 unsafe extern "C" fn malloc(size: usize) -> *mut c_void {
     let layout = match layout_for(size) {
         Some(layout) => layout,
-        None => return std::ptr::null_mut(),
+        None => return core::ptr::null_mut(),
     };
     let size_and_data_ptr = alloc(layout).cast::<usize>();
     if size_and_data_ptr.is_null() {
-        return std::ptr::null_mut();
+        return core::ptr::null_mut();
     }
     *size_and_data_ptr = size;
     size_and_data_ptr.add(1).cast::<c_void>()
@@ -56,7 +58,7 @@ unsafe extern "C" fn free(data_ptr: *mut c_void) {
     let layout = match layout_for(size) {
         Some(layout) => layout,
         // If the layout was invalid, we couldn't have allocated it in the first place
-        None => std::hint::unreachable_unchecked(),
+        None => core::hint::unreachable_unchecked(),
     };
     dealloc(size_and_data_ptr.cast(), layout);
 }
