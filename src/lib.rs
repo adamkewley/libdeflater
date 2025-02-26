@@ -395,6 +395,12 @@ pub struct Compressor {
 }
 unsafe impl Send for Compressor {}
 
+impl Default for Compressor {
+    fn default() -> Self {
+        Self::new(CompressionLvl::default())
+    }
+}
+
 impl Compressor {
     /// Returns a newly constructed `Compressor` that compresses data
     /// with the supplied
