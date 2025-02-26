@@ -392,7 +392,8 @@ impl Compressor {
     pub fn new(lvl: CompressionLvl) -> Compressor {
         unsafe {
             #[cfg(feature = "use_rust_alloc")]
-            let ptr = libdeflate_alloc_compressor_ex(lvl.0, &malloc_wrapper::OPTIONS);
+            let ptr =
+                libdeflate_alloc_compressor_ex(lvl.0 as std::ffi::c_int, &malloc_wrapper::OPTIONS);
             #[cfg(not(feature = "use_rust_alloc"))]
             let ptr = libdeflate_alloc_compressor(lvl.0);
             if let Some(ptr) = NonNull::new(ptr) {
