@@ -154,14 +154,14 @@ pub fn run_custom_benches(b: &mut Criterion) {
             b.iter(|| {
                 buf.clear();
                 flate2_encoder.encode(black_box(&raw_data), black_box(&mut buf));
-            })
+            });
         });
 
         grp.bench_function("libdeflate_encode", |b| {
             b.iter(|| {
                 buf.clear();
                 libdeflate_encoder.encode(black_box(&raw_data), black_box(&mut buf));
-            })
+            });
         });
 
         let compressed_data = {
@@ -178,7 +178,7 @@ pub fn run_custom_benches(b: &mut Criterion) {
                     black_box(raw_data.len()),
                     black_box(&mut buf),
                 );
-            })
+            });
         });
 
         grp.bench_function("libdeflate_decode", |b| {
@@ -189,7 +189,7 @@ pub fn run_custom_benches(b: &mut Criterion) {
                     black_box(raw_data.len()),
                     black_box(&mut buf),
                 );
-            })
+            });
         });
 
         grp.finish();

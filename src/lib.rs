@@ -124,9 +124,16 @@ impl Error for DecompressionError {}
 /// A result returned by decompression methods
 type DecompressionResult<T> = std::result::Result<T, DecompressionError>;
 
+impl Default for Decompressor {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 #[allow(non_upper_case_globals)]
 impl Decompressor {
     /// Returns a newly constructed instance of a `Decompressor`.
+    #[must_use]
     pub fn new() -> Decompressor {
         unsafe {
             #[cfg(feature = "use_rust_alloc")]
@@ -154,8 +161,8 @@ impl Decompressor {
     ) -> DecompressionResult<usize> {
         unsafe {
             let mut out_nbytes = 0;
-            let in_ptr = gz_data.as_ptr() as *const std::ffi::c_void;
-            let out_ptr = out.as_mut_ptr() as *mut std::ffi::c_void;
+            let in_ptr = gz_data.as_ptr().cast::<std::ffi::c_void>();
+            let out_ptr = out.as_mut_ptr().cast::<std::ffi::c_void>();
             let ret: libdeflate_result = libdeflate_gzip_decompress(
                 self.p.as_ptr(),
                 in_ptr,
@@ -190,8 +197,8 @@ impl Decompressor {
     ) -> DecompressionResult<usize> {
         unsafe {
             let mut out_nbytes = 0;
-            let in_ptr = zlib_data.as_ptr() as *const std::ffi::c_void;
-            let out_ptr = out.as_mut_ptr() as *mut std::ffi::c_void;
+            let in_ptr = zlib_data.as_ptr().cast::<std::ffi::c_void>();
+            let out_ptr = out.as_mut_ptr().cast::<std::ffi::c_void>();
             let ret: libdeflate_result = libdeflate_zlib_decompress(
                 self.p.as_ptr(),
                 in_ptr,
@@ -227,8 +234,8 @@ impl Decompressor {
     ) -> DecompressionResult<usize> {
         unsafe {
             let mut out_nbytes = 0;
-            let in_ptr = deflate_data.as_ptr() as *const std::ffi::c_void;
-            let out_ptr = out.as_mut_ptr() as *mut std::ffi::c_void;
+            let in_ptr = deflate_data.as_ptr().cast::<std::ffi::c_void>();
+            let out_ptr = out.as_mut_ptr().cast::<std::ffi::c_void>();
             let ret: libdeflate_result = libdeflate_deflate_decompress(
                 self.p.as_ptr(),
                 in_ptr,
@@ -293,7 +300,7 @@ impl CompressionLvl {
     /// Valid compression levels for libdeflate, at time of writing,
     /// are 1-12.
     pub fn new(level: i32) -> CompressionLevelResult {
-        if MIN_COMPRESSION_LVL <= level && level <= MAX_COMPRESSION_LVL {
+        if (MIN_COMPRESSION_LVL..=MAX_COMPRESSION_LVL).contains(&level) {
             Ok(CompressionLvl(level))
         } else {
             Err(CompressionLvlError::InvalidValue)
@@ -302,6 +309,7 @@ impl CompressionLvl {
 
     /// Returns the fastest compression level. This compression level
     /// offers the highest performance but lowest compression ratio.
+    #[must_use]
     pub fn fastest() -> CompressionLvl {
         CompressionLvl(MIN_COMPRESSION_LVL)
     }
@@ -309,12 +317,14 @@ impl CompressionLvl {
     /// Returns the best compression level, in terms of compression
     /// ratio. This compression level offers the best compression
     /// ratio but lowest performance.
+    #[must_use]
     pub fn best() -> CompressionLvl {
         CompressionLvl(MAX_COMPRESSION_LVL)
     }
 
     /// Returns an iterator that emits all compression levels
     /// supported by `libdeflate` in ascending order.
+    #[must_use]
     pub fn iter() -> CompressionLvlIter {
         CompressionLvlIter(MIN_COMPRESSION_LVL)
     }
@@ -389,6 +399,7 @@ impl Compressor {
     /// Returns a newly constructed `Compressor` that compresses data
     /// with the supplied
     /// [`CompressionLvl`](struct.CompressionLvl.html)
+    #[must_use]
     pub fn new(lvl: CompressionLvl) -> Compressor {
         unsafe {
             #[cfg(feature = "use_rust_alloc")]
@@ -423,8 +434,8 @@ impl Compressor {
         out_deflate_data: &mut [u8],
     ) -> CompressionResult<usize> {
         unsafe {
-            let in_ptr = in_raw_data.as_ptr() as *const std::ffi::c_void;
-            let out_ptr = out_deflate_data.as_mut_ptr() as *mut std::ffi::c_void;
+            let in_ptr = in_raw_data.as_ptr().cast::<std::ffi::c_void>();
+            let out_ptr = out_deflate_data.as_mut_ptr().cast::<std::ffi::c_void>();
 
             let sz = libdeflate_deflate_compress(
                 self.p.as_ptr(),
@@ -461,8 +472,8 @@ impl Compressor {
         out_zlib_data: &mut [u8],
     ) -> CompressionResult<usize> {
         unsafe {
-            let in_ptr = in_raw_data.as_ptr() as *const std::ffi::c_void;
-            let out_ptr = out_zlib_data.as_mut_ptr() as *mut std::ffi::c_void;
+            let in_ptr = in_raw_data.as_ptr().cast::<std::ffi::c_void>();
+            let out_ptr = out_zlib_data.as_mut_ptr().cast::<std::ffi::c_void>();
 
             let sz = libdeflate_zlib_compress(
                 self.p.as_ptr(),
@@ -499,8 +510,8 @@ impl Compressor {
         out_gzip_data: &mut [u8],
     ) -> CompressionResult<usize> {
         unsafe {
-            let in_ptr = in_raw_data.as_ptr() as *const std::ffi::c_void;
-            let out_ptr = out_gzip_data.as_mut_ptr() as *mut std::ffi::c_void;
+            let in_ptr = in_raw_data.as_ptr().cast::<std::ffi::c_void>();
+            let out_ptr = out_gzip_data.as_mut_ptr().cast::<std::ffi::c_void>();
 
             let sz = libdeflate_gzip_compress(
                 self.p.as_ptr(),
@@ -533,8 +544,15 @@ pub struct Crc {
     val: u32,
 }
 
+impl Default for Crc {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl Crc {
     /// Returns a new `Crc` instance
+    #[must_use]
     pub fn new() -> Crc {
         Crc { val: 0 }
     }
@@ -544,13 +562,14 @@ impl Crc {
         unsafe {
             self.val = libdeflate_crc32(
                 self.val,
-                data.as_ptr() as *const core::ffi::c_void,
+                data.as_ptr().cast::<core::ffi::c_void>(),
                 data.len(),
             );
         }
     }
 
     /// Returns the current CRC32 checksum
+    #[must_use]
     pub fn sum(&self) -> u32 {
         self.val
     }
@@ -561,9 +580,10 @@ impl Crc {
 /// Note: this is a one-shot method that requires all data
 /// up-front. Developers wanting to compute a rolling crc32 from
 /// (e.g.) a stream should use [`Crc`](struct.Crc.html)
+#[must_use]
 pub fn crc32(data: &[u8]) -> u32 {
     let mut crc = Crc::new();
-    crc.update(&data);
+    crc.update(data);
     crc.sum()
 }
 
@@ -573,8 +593,15 @@ pub struct Adler32 {
     val: u32,
 }
 
+impl Default for Adler32 {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl Adler32 {
     /// Returns a new `Adler32` instance (with initial adler32 value 1, which is default for adler32)
+    #[must_use]
     pub fn new() -> Adler32 {
         Adler32 { val: 1 }
     }
@@ -583,12 +610,13 @@ impl Adler32 {
         unsafe {
             self.val = libdeflate_adler32(
                 self.val,
-                data.as_ptr() as *const core::ffi::c_void,
+                data.as_ptr().cast::<core::ffi::c_void>(),
                 data.len(),
             );
         }
     }
     /// Returns the current Adler32 checksum
+    #[must_use]
     pub fn sum(&self) -> u32 {
         self.val
     }
@@ -598,8 +626,9 @@ impl Adler32 {
 /// Note: this is a one-shot method that requires all data
 /// up-front. Developers wanting to compute a rolling adler32 from
 /// (e.g.) a stream should use [`Adler32`](struct.Adler32.html)
+#[must_use]
 pub fn adler32(data: &[u8]) -> u32 {
     let mut adler32 = Adler32::new();
-    adler32.update(&data);
+    adler32.update(data);
     adler32.sum()
 }

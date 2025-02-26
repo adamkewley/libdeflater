@@ -14,9 +14,10 @@ fn main() {
         content
     };
 
-    if gz_data.len() < 10 {
-        panic!("gz data is too short (for magic bytes + footer");
-    }
+    assert!(
+        !(gz_data.len() < 10),
+        "gz data is too short (for magic bytes + footer"
+    );
 
     // gzip RFC1952: a valid gzip file has an ISIZE field in the
     // footer, which is a little-endian u32 number representing the
@@ -25,10 +26,10 @@ fn main() {
     let isize = {
         let isize_start = gz_data.len() - 4;
         let isize_bytes = &gz_data[isize_start..];
-        let mut ret: u32 = isize_bytes[0] as u32;
-        ret |= (isize_bytes[1] as u32) << 8;
-        ret |= (isize_bytes[2] as u32) << 16;
-        ret |= (isize_bytes[3] as u32) << 24;
+        let mut ret: u32 = u32::from(isize_bytes[0]);
+        ret |= u32::from(isize_bytes[1]) << 8;
+        ret |= u32::from(isize_bytes[2]) << 16;
+        ret |= u32::from(isize_bytes[3]) << 24;
         ret as usize
     };
 

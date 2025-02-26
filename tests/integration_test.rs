@@ -1,6 +1,5 @@
 extern crate libdeflater;
 
-use flate2;
 use libdeflater::{
     CompressionError, CompressionLvl, CompressionLvlError, Compressor, DecompressionError,
     Decompressor,
@@ -15,7 +14,7 @@ use std::vec::Vec;
 
 #[test]
 fn test_can_create_new_decompressor() {
-    Decompressor::new();
+    let _ = Decompressor::new();
 }
 
 fn read_fixture(pth: &str) -> Vec<u8> {
@@ -51,7 +50,7 @@ fn read_fixture_gz_with_bad_crc32() -> Vec<u8> {
     let crc32_start = data.len() - 8;
 
     // beats having to have an extra fixture file
-    data[crc32_start] = data[crc32_start] + 1;
+    data[crc32_start] += 1;
 
     data
 }
@@ -61,7 +60,7 @@ fn read_fixture_gz_with_bad_isize() -> Vec<u8> {
     let isize_start = data.len() - 4;
 
     // beats having to have an extra fixture file
-    data[isize_start] = data[isize_start] + 1;
+    data[isize_start] += 1;
 
     data
 }
@@ -86,7 +85,7 @@ fn read_fixture_zlib_with_bad_adler32_checksum() -> Vec<u8> {
     let mut data = read_fixture_zlib();
     let adler32_start = data.len() - 4;
 
-    data[adler32_start] = data[adler32_start] + 1;
+    data[adler32_start] += 1;
 
     data
 }
@@ -117,7 +116,7 @@ fn test_can_send_decompressor_to_another_thread() {
             .gzip_decompress(&content, &mut decompressed)
             .unwrap();
     });
-    t.join().unwrap()
+    t.join().unwrap();
 }
 
 #[test]
@@ -137,7 +136,7 @@ fn test_can_send_compressor_to_another_thread() {
             .deflate_compress(&in_data, &mut out_data)
             .unwrap();
     });
-    t.join().unwrap()
+    t.join().unwrap();
 }
 
 // gz decompression
@@ -193,10 +192,10 @@ fn test_calling_gzip_decompress_with_oversized_buf_returns_correct_size() {
         let content = read_fixture_gz();
         let mut decompressed = Vec::new();
         decompressed.resize(OVERSIZED_FACTOR * fixture_content_size(), 0);
-        let sz = decompressor
+
+        decompressor
             .gzip_decompress(&content, &mut decompressed)
-            .unwrap();
-        sz
+            .unwrap()
     };
 
     assert_eq!(sz, fixture_content_size());
@@ -289,10 +288,10 @@ fn test_calling_zlib_decompress_with_oversized_buf_returns_correct_size() {
         let content = read_fixture_zlib();
         let mut decompressed = Vec::new();
         decompressed.resize(OVERSIZED_FACTOR * fixture_content_size(), 0);
-        let sz = decompressor
+
+        decompressor
             .zlib_decompress(&content, &mut decompressed)
-            .unwrap();
-        sz
+            .unwrap()
     };
 
     assert_eq!(sz, fixture_content_size());
@@ -380,10 +379,10 @@ fn test_calling_deflate_decompress_with_oversized_buf_returns_correct_size() {
         let content = read_fixture_deflate();
         let mut decompressed = Vec::new();
         decompressed.resize(OVERSIZED_FACTOR * fixture_content_size(), 0);
-        let sz = decompressor
+
+        decompressor
             .deflate_decompress(&content, &mut decompressed)
-            .unwrap();
-        sz
+            .unwrap()
     };
 
     assert_eq!(sz, fixture_content_size());
@@ -413,17 +412,17 @@ fn test_compression_lvl_new_returns_err_for_13() {
 
 #[test]
 fn test_compressor_with_fastest_compression_lvl_calls_with_no_panics() {
-    Compressor::new(CompressionLvl::fastest());
+    let _ = Compressor::new(CompressionLvl::fastest());
 }
 
 #[test]
 fn test_compressor_with_default_compression_lvl_calls_with_no_panics() {
-    Compressor::new(CompressionLvl::default());
+    let _ = Compressor::new(CompressionLvl::default());
 }
 
 #[test]
 fn test_compressor_with_best_compression_lvl_calls_with_no_panics() {
-    Compressor::new(CompressionLvl::best());
+    let _ = Compressor::new(CompressionLvl::best());
 }
 
 #[test]
@@ -436,7 +435,7 @@ fn test_compression_iter_starts_at_compression_lvl_zero() {
 #[test]
 fn test_compressor_with_compression_lvl_can_be_called_with_all_lvls_with_no_panics() {
     for lvl in CompressionLvl::iter() {
-        Compressor::new(lvl);
+        let _ = Compressor::new(lvl);
     }
 }
 
