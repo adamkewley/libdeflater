@@ -12,7 +12,7 @@ pub const libdeflate_result_LIBDEFLATE_SUCCESS: libdeflate_result = 0;
 pub const libdeflate_result_LIBDEFLATE_BAD_DATA: libdeflate_result = 1;
 pub const libdeflate_result_LIBDEFLATE_SHORT_OUTPUT: libdeflate_result = 2;
 pub const libdeflate_result_LIBDEFLATE_INSUFFICIENT_SPACE: libdeflate_result = 3;
-pub type libdeflate_result = u32 ;
+pub type libdeflate_result = ::std::os::raw::c_uint;
 
 extern "C" {
     pub fn libdeflate_alloc_decompressor() -> *mut libdeflate_decompressor;
