@@ -8,6 +8,14 @@
 pub struct libdeflate_compressor { _unused : [ u8 ; 0 ] , }
 #[repr(C)]
 pub struct libdeflate_decompressor { _unused : [ u8 ; 0 ] , }
+
+#[repr(C)]
+pub struct libdeflate_options {
+    pub sizeof_options: usize,
+    pub malloc_func: Option<unsafe extern "C" fn(arg1: usize) -> *mut ::std::os::raw::c_void>,
+    pub free_func: Option<unsafe extern "C" fn(arg1: *mut ::std::os::raw::c_void)>,
+}
+
 pub const libdeflate_result_LIBDEFLATE_SUCCESS: libdeflate_result = 0;
 pub const libdeflate_result_LIBDEFLATE_BAD_DATA: libdeflate_result = 1;
 pub const libdeflate_result_LIBDEFLATE_SHORT_OUTPUT: libdeflate_result = 2;
@@ -16,6 +24,7 @@ pub type libdeflate_result = ::std::os::raw::c_uint;
 
 extern "C" {
     pub fn libdeflate_alloc_decompressor() -> *mut libdeflate_decompressor;
+    pub fn libdeflate_alloc_decompressor_ex(options: *const libdeflate_options) -> *mut libdeflate_decompressor;
     pub fn libdeflate_free_decompressor(decompressor: *mut libdeflate_decompressor);
 
     pub fn libdeflate_gzip_decompress(decompressor: *mut libdeflate_decompressor,
@@ -40,6 +49,9 @@ extern "C" {
                                          actual_out_nbytes_ret: *mut usize) -> libdeflate_result;
 
     pub fn libdeflate_alloc_compressor(compression_level: ::std::os::raw::c_int) -> *mut libdeflate_compressor;
+    
+    pub fn libdeflate_alloc_compressor_ex(compression_level: ::std::ffi::c_int,
+                                          options: *const libdeflate_options) -> *mut libdeflate_compressor;
 
     pub fn libdeflate_deflate_compress_bound(compressor: *mut libdeflate_compressor,
                                              in_nbytes: usize) -> usize;
