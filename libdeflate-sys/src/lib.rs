@@ -34,6 +34,14 @@ extern "C" {
                                       out_nbytes_avail: usize,
                                       actual_out_nbytes_ret: *mut usize) -> libdeflate_result;
 
+    pub fn libdeflate_gzip_decompress_ex(decompressor: *mut libdeflate_decompressor,
+                                         in_: *const ::std::os::raw::c_void,
+                                         in_nbytes: usize,
+                                         out: *mut ::std::os::raw::c_void,
+                                         out_nbytes_avail: usize,
+                                         actual_in_nbytes_ret: *mut usize,
+                                         actual_out_nbytes_ret: *mut usize) -> libdeflate_result;
+
     pub fn libdeflate_zlib_decompress(decompressor: *mut libdeflate_decompressor,
                                       in_: *const ::std::os::raw::c_void,
                                       in_nbytes: usize,
@@ -41,12 +49,28 @@ extern "C" {
                                       out_nbytes_avail: usize,
                                       actual_out_nbytes_ret: *mut usize) -> libdeflate_result;
 
+    pub fn libdeflate_zlib_decompress_ex(decompressor: *mut libdeflate_decompressor,
+                                         in_: *const ::std::os::raw::c_void,
+                                         in_nbytes: usize,
+                                         out: *mut ::std::os::raw::c_void,
+                                         out_nbytes_avail: usize,
+                                         actual_in_nbytes_ret: *mut usize,
+                                         actual_out_nbytes_ret: *mut usize) -> libdeflate_result;
+
     pub fn libdeflate_deflate_decompress(decompressor: *mut libdeflate_decompressor,
                                          in_: *const ::std::os::raw::c_void,
                                          in_nbytes: usize,
                                          out: *mut ::std::os::raw::c_void,
                                          out_nbytes_avail: usize,
                                          actual_out_nbytes_ret: *mut usize) -> libdeflate_result;
+    
+    pub fn libdeflate_deflate_decompress_ex(decompressor: *mut libdeflate_decompressor, 
+                                            in_: *const ::std::os::raw::c_void,
+                                            in_nbytes: usize,
+                                            out: *mut ::std::os::raw::c_void,
+                                            out_nbytes_avail: usize,
+                                            actual_in_nbytes_ret: *mut usize,
+                                            actual_out_nbytes_ret: *mut usize) -> libdeflate_result;
 
     pub fn libdeflate_alloc_compressor(compression_level: ::std::os::raw::c_int) -> *mut libdeflate_compressor;
     
