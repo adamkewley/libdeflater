@@ -143,6 +143,22 @@ mod tests {
     }
 
     #[test]
+    fn can_make_decompressor_with_null_malloc_free() {
+        unsafe {
+            let options = libdeflate_options {
+                sizeof_options: std::mem::size_of::<libdeflate_options>(),
+                malloc_func: None,
+                free_func: None,
+            };
+            let ptr = libdeflate_alloc_decompressor_ex(&options);
+
+            assert!(!ptr.is_null());
+
+            libdeflate_free_decompressor(ptr);
+        }
+    }
+
+    #[test]
     fn making_compressor_with_negative_compression_lvl_fails() {
         unsafe {
             let ptr = libdeflate_alloc_compressor(-1);
