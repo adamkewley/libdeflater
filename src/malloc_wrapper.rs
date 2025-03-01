@@ -22,7 +22,7 @@
 //! At this point we can read `size` back and call the Rust `dealloc`
 //! for the whole allocated chunk.
 
-use libdeflate_sys::libdeflate_set_memory_allocator;
+use libdeflate_sys::libdeflate_options;
 use std::alloc::*;
 use std::ffi::c_void;
 use std::mem::{align_of, size_of};
@@ -43,7 +43,8 @@ unsafe extern "C" fn free(data_ptr: *mut c_void) {
     dealloc(size_and_data_ptr as _, layout_for(size))
 }
 
-pub unsafe fn init_allocator() {
-    static INIT: std::sync::Once = std::sync::Once::new();
-    INIT.call_once(|| libdeflate_set_memory_allocator(malloc, free))
-}
+pub static OPTIONS: libdeflate_options = libdeflate_options {
+    sizeof_options: size_of::<libdeflate_options>(),
+    malloc_func: Some(malloc),
+    free_func: Some(free),
+};
