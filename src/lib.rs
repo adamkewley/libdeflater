@@ -137,6 +137,12 @@ impl Error for DecompressionError {}
 /// A result returned by decompression methods
 type DecompressionResult<T> = std::result::Result<T, DecompressionError>;
 
+impl Default for Decompressor {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 #[allow(non_upper_case_globals)]
 impl Decompressor {
 
@@ -399,6 +405,12 @@ pub struct Compressor {
 }
 unsafe impl Send for Compressor {}
 
+impl Default for Compressor {
+    fn default() -> Self {
+        Self::new(CompressionLvl::default())
+    }
+}
+
 impl Compressor {
 
     /// Returns a newly constructed `Compressor` that compresses data
@@ -538,6 +550,12 @@ pub struct Crc {
     val: u32,
 }
 
+impl Default for Crc {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl Crc {
     /// Returns a new `Crc` instance
     pub fn new() -> Crc {
@@ -574,6 +592,12 @@ pub fn crc32(data: &[u8]) -> u32 {
 /// value.
 pub struct Adler32 {
     val: u32,
+}
+
+impl Default for Adler32 {
+    fn default() -> Self {
+        Self::new()
+    }
 }
 
 impl Adler32 {
