@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Upcoming Release]
 
+## [1.23.1]
+
 - Changed `Compressor`/`Decompressor` functions to accept a `NonNull<T>` rather
   than a raw pointer (#43, thanks @Dr-Emann)
 - Added the following structs/functions to `libdeflate-sys` in order to support
