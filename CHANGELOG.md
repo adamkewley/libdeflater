@@ -5,7 +5,27 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased]
+## [Upcoming Release]
+
+- Changed `Compressor`/`Decompressor` functions to accept a `NonNull<T>` rather
+  than a raw pointer (#43, thanks @Dr-Emann)
+- Added the following structs/functions to `libdeflate-sys` in order to support
+  per-object allocators (#44, thanks @Dr-Emann):
+  - `libdeflate_options`
+  - `libdeflate_alloc_decompressor_ex`
+  - `libdeflate_alloc_compressor_ex`
+  - `libdeflate_gzip_decompress_ex`
+  - `libdeflate_zlib_decompress_ex`
+  - `libdeflate_deflate_decompress_ex`
+- The type of `libdeflate_result` was changed from `u32` to `c_uint`. This
+  shouldn't affect almost any downstream code (where `u32` == `c_uint`) but
+  is more robust when compiling on alternative architectures (#44).
+- The stdlib `Default` trait was implemented for `Decompressor`, `Compressor`,
+  `Crc`, and `Adler32` (#45, thanks @Dr-Emann).
+- `CompressionLvl`-related functions (e.g. `CompressionLevel::fastest()`),
+  `Crc::new`, `Crc::sum`, `Adler32::new`, and `Adler32::sum` are now `const`
+  (#46, thanks @Dr-Emann).
+
 
 ## [1.23.0]
 
