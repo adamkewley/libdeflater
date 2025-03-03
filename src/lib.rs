@@ -312,7 +312,7 @@ impl CompressionLvl {
     ///
     /// Valid compression levels for libdeflate, at time of writing,
     /// are 1-12.
-    pub fn new(level: i32) -> CompressionLevelResult {
+    pub const fn new(level: i32) -> CompressionLevelResult {
         if MIN_COMPRESSION_LVL <= level && level <= MAX_COMPRESSION_LVL {
             Ok(CompressionLvl(level))
         } else {
@@ -322,20 +322,20 @@ impl CompressionLvl {
 
     /// Returns the fastest compression level. This compression level
     /// offers the highest performance but lowest compression ratio.
-    pub fn fastest() -> CompressionLvl {
+    pub const fn fastest() -> CompressionLvl {
         CompressionLvl(MIN_COMPRESSION_LVL)
     }
 
     /// Returns the best compression level, in terms of compression
     /// ratio. This compression level offers the best compression
     /// ratio but lowest performance.
-    pub fn best() -> CompressionLvl {
+    pub const fn best() -> CompressionLvl {
         CompressionLvl(MAX_COMPRESSION_LVL)
     }
 
     /// Returns an iterator that emits all compression levels
     /// supported by `libdeflate` in ascending order.
-    pub fn iter() -> CompressionLvlIter {
+    pub const fn iter() -> CompressionLvlIter {
         CompressionLvlIter(MIN_COMPRESSION_LVL)
     }
 }
@@ -558,7 +558,7 @@ impl Default for Crc {
 
 impl Crc {
     /// Returns a new `Crc` instance
-    pub fn new() -> Crc {
+    pub const fn new() -> Crc {
         Crc { val: 0 }
     }
 
@@ -572,7 +572,7 @@ impl Crc {
     }
 
     /// Returns the current CRC32 checksum
-    pub fn sum(&self) -> u32 {
+    pub const fn sum(&self) -> u32 {
         self.val
     }
 }
@@ -602,7 +602,7 @@ impl Default for Adler32 {
 
 impl Adler32 {
     /// Returns a new `Adler32` instance (with initial adler32 value 1, which is default for adler32)
-    pub fn new() -> Adler32 {
+    pub const fn new() -> Adler32 {
         Adler32 { val: 1 }
     }
     /// Update the Adler32 with the bytes in `data`
@@ -615,7 +615,7 @@ impl Adler32 {
             }
     }
     /// Returns the current Adler32 checksum
-    pub fn sum(&self) -> u32 {
+    pub const fn sum(&self) -> u32 {
         self.val
     }
 }
