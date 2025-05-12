@@ -9,7 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [1.24.0]
 
-- Updated libdeflate to v1.24
+- Updated libdeflate to v1.24 (#47, thanks @musicinmybrain)
 
 ## [1.23.1]
 
