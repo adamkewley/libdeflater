@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Upcoming Release]
 
+## [1.24.0]
+
+- Updated libdeflate to v1.24
+
 ## [1.23.1]
 
 - Changed `Compressor`/`Decompressor` functions to accept a `NonNull<T>` rather
@@ -27,7 +31,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `CompressionLvl`-related functions (e.g. `CompressionLevel::fastest()`),
   `Crc::new`, `Crc::sum`, `Adler32::new`, and `Adler32::sum` are now `const`
   (#46, thanks @Dr-Emann).
-
 
 ## [1.23.0]
 
